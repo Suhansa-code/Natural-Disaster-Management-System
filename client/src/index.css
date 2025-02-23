@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Olivera Regular";
+  font-style: normal;
+  font-weight: normal;
+  src:
+    local("Olivera Regular"),
+    url("./assets/Fonts/Olivera-ZVxzB.woff") format("woff");
+}
+
+body {
+  font-family: "Olivera Regular", sans-serif;
+  /* horizontal overflow hidden */
+  overflow-x: hidden;
+}
+html {
+  scroll-behavior: smooth;
+}
