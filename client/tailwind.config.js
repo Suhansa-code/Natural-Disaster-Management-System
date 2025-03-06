@@ -1,38 +1,40 @@
-/** @type {import('tailwindcss').Config} */
-const withMT = require("@material-tailwind/react/utils/withMT");
+import { text } from "body-parser";
 
-module.exports = withMT({
-	content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-	theme: {
-		extend: {
-			keyframes: {
-				flip: {
-					"0%, 50%": { transform: "rotateX(0deg)" },
-					"100%": { transform: "rotateX(180deg)" },
-				},
-			},
-			animation: {
-				flip: "flip 4s infinite alternate ease-in-out",
-			},
-			colors: {
-				primary: "#FFFFFF",
-				secondary: {
-					100: "#523B2F",
-					200: "#EBE2DB",
-					// Adding low-opacity versions
-					"100-low": "rgba(82, 59, 47, 0.8)", // 50% opacity
-					"200-low": "rgba(235, 226, 219, 0.3)", // 30% opacity
-				},
-				// Example for adding other low-opacity custom colors
-				accent: {
-					DEFAULT: "#FF5733",
-					low: "rgba(255, 87, 51, 0.4)", // 40% opacity
-				},
-			},
-			fontFamily: {
-				primaryFont: ["primaryFont", "serif"],
-			},
-		},
-	},
-	plugins: [],
-});
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: "class", // Enables dark mode using a CSS class
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    extend: {
+      fontFamily: {
+        proxima: ["Proxima Nova", "sans-serif"],
+      },
+      colors: {
+        primary: {
+          light: "#1BB66E", // Light mode primary background
+          dark: "#1BB66E", // Dark mode primary background (Tailwind slate-900)
+        },
+        hover: {
+          light: "#0FE07F",
+          dark: "#0FE07F",
+        },
+        secondary: {
+          light: "#38bdf8", // Light mode (Sky Blue - sky-500)
+          dark: "#0ea5e9", // Dark mode (Darker Sky Blue - sky-600)
+        },
+        text: {
+          light: "#1e293b", // Light mode text (Tailwind slate-800)
+          dark: "#f8fafc", // Dark mode text (Tailwind slate-50)
+        },
+        border: {
+          default: "#CFCFCF",
+        },
+        text: {
+          primary: "#2d2d2d",
+          secondary: "#5E5E5E",
+        },
+      },
+    },
+  },
+  plugins: [],
+};

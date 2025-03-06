@@ -1,48 +1,53 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import Dbcon from "./Utils/db.js";
-import AuthRoutes from "./Routes/Auth.js";
-import AdminRoutes from "./Routes/AdminRoutes.js";
-import cookieparser from "cookie-parser";
+import cookieParser from "cookie-parser";
 import cloudinary from "cloudinary";
+import Stripe from "stripe";
+import Dbcon from "./Config/db.js";
+
+// Routes
+import PaymentRoutes from "./Routes/PaymentRoutes.js"; // Payment-related routes
+import EmailRoutes from "./Routes/EmailRoutes.js"; // Email-related routes
 
 dotenv.config();
-const PORT = process.env.PORT || 4000;
-
 const app = express();
+const PORT = process.env.PORT || 4000;
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Stripe Initialization
 
+// Database Connection
 Dbcon();
 
+// Middleware
 app.use(express.json());
-const allowedOrigins = [
-  "https://artisanbespokefurniture.com",
-  "https://www.artisanbespokefurniture.com/",
-  "https://www.artisanbespokefurniture.com",
-];
+app.use(cookieParser());
+app.use(cors());
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (allowedOrigins.includes(origin) || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+// Routes
+app.use("/api/payment", PaymentRoutes); // Payment-related endpoints
+app.use("/api/email", EmailRoutes); // Email sending endpoint
 
-app.use(cookieparser());
-
-app.use("/api/auth", AuthRoutes);
-app.use("/api/admin", AdminRoutes);
-
+// Home Route
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
+// Stripe Payment Intent
+app.post("/api/payment/create-payment-intent", async (req, res) => {
+  const { amount } = req.body;
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency: "usd",
+    });
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Server Start
 app.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
