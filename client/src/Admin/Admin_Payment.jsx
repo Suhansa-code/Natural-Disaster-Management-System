@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import { CiExport } from "react-icons/ci";
 import { MdOutlineFilterList } from "react-icons/md";
@@ -9,6 +9,8 @@ import Payment_Grid from "../Components/Payment_Grid.jsx";
 const Admin_Payment = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterText, setFilterText] = useState("");
+  const [sortOrder, setSortOrder] = useState("date-desc");
 
   useEffect(() => {
     fetchPayments();
@@ -76,18 +78,41 @@ const Admin_Payment = () => {
                 </p>
               </div>
               <div className="flex flex-row gap-3">
+                {/* Filter & Sort Controls */}
+                <div className="flex justify-between items-center mb-4 gap-x-2 mt-2">
+                  {/* Search Filter */}
+                  <input
+                    type="text"
+                    placeholder="Search Transactions..."
+                    className="border px-3 py-1 text-text-secondary rounded-[4px] text-[13px] outline-none w-[200px] border-gray-300"
+                    value={filterText}
+                    onChange={(e) => setFilterText(e.target.value)}
+                  />
+
+                  {/* Sorting Dropdown */}
+                  <select
+                    className="border px-3 py-1 w-[130px] rounded-[4px] text-text-secondary outline-none text-[13px] border-gray-300"
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                  >
+                    <option value="date-desc">Date (Newest First)</option>
+                    <option value="date-asc">Date (Oldest First)</option>
+                    <option value="amount-desc">Amount (High to Low)</option>
+                    <option value="amount-asc">Amount (Low to High)</option>
+                  </select>
+                </div>
                 <button
                   type="button"
-                  className="mt-2 px-3 py-1 bg-white border border-border-default h-[30px]   text-gray-400 font-normal rounded-md text-[13px] hover:bg-gray-50"
+                  className=" hidden mt-2 px-3 py-1 bg-white border border-border-default h-[30px]   text-gray-400 font-normal rounded-md text-[13px] hover:bg-gray-50"
                 >
-                  <div className="flex flex-row items-center gap-2">
+                  <div className="flex flex-row items-center gap-2 ">
                     <SlCalender className="text-gray-400 w-4 h-4" />
                     <p>Select Date</p>
                   </div>
                 </button>
                 <button
                   type="button"
-                  className="mt-2 px-3 py-1 bg-white border border-border-default h-[30px]   text-gray-400 font-normal rounded-md text-[13px] hover:bg-gray-50"
+                  className="hidden mt-2 px-3 py-1 bg-white border border-border-default h-[30px]   text-gray-400 font-normal rounded-md text-[13px] hover:bg-gray-50"
                 >
                   <div className="flex flex-row items-center gap-2">
                     <MdOutlineFilterList className="text-gray-400 w-4 h-4" />
@@ -96,7 +121,13 @@ const Admin_Payment = () => {
                 </button>
               </div>
             </div>
-            <Payment_Grid payments={payments} loading={loading} />
+            <Payment_Grid
+              payments={payments}
+              loading={loading}
+              filterText_pros={filterText}
+              sortOrder__pros={sortOrder}
+              fetchPayments={fetchPayments}
+            />
           </div>
         </div>
 

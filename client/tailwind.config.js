@@ -13,7 +13,8 @@ export default {
         primary: {
           light: "#1BB66E", // Light mode primary background
           dark: "#1BB66E",
-          red: "#ff4070", // Dark mode primary background (Tailwind slate-900)
+          red: "#ff4070",
+          yellow: "#edc41f",
         },
         hover: {
           light: "#0FE07F",

@@ -21,8 +21,8 @@ const paymentSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "successful", "failed"],
-      default: "pending",
+      enum: ["Pending", "Successful", "Failed"],
+      default: "Pending",
     }, // Payment status
 
     transactionId: { type: String, unique: true, sparse: true }, // Stripe transaction ID

@@ -23,7 +23,7 @@ export const createPayment = async (req, res) => {
       amount,
       currency,
       branch: "N/A",
-      status: "pending",
+      status: "Pending",
       transactionId: paymentIntent.id,
       email,
     });
@@ -47,7 +47,7 @@ export const verifyPayment = async (req, res) => {
       amount,
       currency,
       branch,
-      status: "pending",
+      status: "Pending",
       slipImage,
       email,
     });
