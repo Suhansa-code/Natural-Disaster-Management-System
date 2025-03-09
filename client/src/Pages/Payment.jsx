@@ -69,7 +69,7 @@ function Payment() {
       setLoading(false);
 
       if (response.ok) {
-        setMessage("Payment submitted successfully!");
+        toast.error("Payment submitted successfully!");
         setFullName("");
         setBankName("");
         setDepositBranch("");
