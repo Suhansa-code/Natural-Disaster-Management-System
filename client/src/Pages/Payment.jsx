@@ -44,25 +44,6 @@ function Payment() {
       return;
     }
 
-    // const formData = new FormData();
-    // formData.append("username", "65d123abc456def789ghi012"); // Replace with actual user ID
-    // formData.append("amount", amount);
-    // formData.append("bankname", bankName);
-    // formData.append("branch", branch);
-    // formData.append("currency", "USD");
-    // formData.append("slipImage", "testing");
-    // formData.append("email", "pasinduh@gmail.com");
-
-    // selectedFiles.forEach((file, index) => {
-    //   formData.append(`file`, file);
-    // });
-
-    // const formObject = {};
-    // formData.forEach((value, key) => {
-    //   formObject[key] = value;
-    // });
-    // console.log(formObject);
-
     try {
       setLoading(true);
       const response = await fetch(

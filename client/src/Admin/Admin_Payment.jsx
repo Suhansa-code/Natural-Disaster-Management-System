@@ -84,14 +84,14 @@ const Admin_Payment = () => {
                   <input
                     type="text"
                     placeholder="Search Transactions..."
-                    className="border px-3 py-1 text-text-secondary rounded-[4px] text-[13px] outline-none w-[200px] border-gray-300"
+                    className="border px-3 py-1 text-text-secondary rounded-[4px] text-[13px] outline-none w-[240px] border-gray-300"
                     value={filterText}
                     onChange={(e) => setFilterText(e.target.value)}
                   />
 
                   {/* Sorting Dropdown */}
                   <select
-                    className="border px-3 py-1 w-[130px] rounded-[4px] text-text-secondary outline-none text-[13px] border-gray-300"
+                    className="border px-3 py-1 w-[160px] rounded-[4px] text-text-secondary outline-none text-[13px] border-gray-300"
                     value={sortOrder}
                     onChange={(e) => setSortOrder(e.target.value)}
                   >
