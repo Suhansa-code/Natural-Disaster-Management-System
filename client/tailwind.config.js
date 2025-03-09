@@ -12,7 +12,8 @@ export default {
       colors: {
         primary: {
           light: "#1BB66E", // Light mode primary background
-          dark: "#1BB66E", // Dark mode primary background (Tailwind slate-900)
+          dark: "#1BB66E",
+          red: "#ff4070", // Dark mode primary background (Tailwind slate-900)
         },
         hover: {
           light: "#0FE07F",
@@ -28,10 +29,18 @@ export default {
         },
         border: {
           default: "#CFCFCF",
+          border1: "#eaeaea",
+          border2: "#bbbbbb",
+          border3: "#dddddd",
         },
         text: {
           primary: "#2d2d2d",
           secondary: "#5E5E5E",
+        },
+        textfiels: {
+          field1: "#eaeaea",
+          field2: "#eaeaea",
+          field3: "#bbbbbb",
         },
       },
     },

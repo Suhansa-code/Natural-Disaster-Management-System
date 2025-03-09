@@ -100,20 +100,20 @@ function CheckoutForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-lg mx-auto p-6 rounded-xl shadow-lg bg-white dark:bg-slate-800 transition-all"
+      className="max-w-lg mx-auto ml-2 p-6 rounded-xl shadow-lg bg-white dark:bg-slate-800 transition-all"
     >
-      <h2 className="text-2xl font-semibold text-primary-light dark:text-primary-dark mb-6">
-        Checkout
+      <h2 className="text-md font-medium text-text-primary mb-5">
+        Online Payment
       </h2>
 
       {/* Name Input */}
       <div className="mb-4">
-        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1">
+        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1 text-left pl-3 ">
           Name
         </label>
         <input
           type="text"
-          className="w-full p-3 h-10 rounded-[4px] border focus:ring-0 focus:border-1 outline-none border-border-default  focus:border-primary-light bg-gray-100 dark:bg-gray-800 text-text-primary dark:text-text-dark"
+          className="w-full p-3 h-10 rounded-[4px] text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
           placeholder="John Doe"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -122,12 +122,12 @@ function CheckoutForm() {
 
       {/* Email Input */}
       <div className="mb-4">
-        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1">
+        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1 text-left pl-3 ">
           Email
         </label>
         <input
           type="email"
-          className="w-full p-3 h-10 rounded-[4px] border focus:ring-0 focus:border-1 outline-none border-border-default  focus:border-primary-light bg-gray-100 dark:bg-gray-800 text-text-primary dark:text-text-dark"
+          className="w-full p-3 h-10 rounded-[4px] text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
           placeholder="johndoe@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -136,12 +136,12 @@ function CheckoutForm() {
 
       {/* Amount Input */}
       <div className="mb-4">
-        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1">
+        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1 text-left pl-3 ">
           Amount
         </label>
         <input
           type="Number"
-          className="w-full p-3 h-10 rounded-[4px] border focus:ring-0 focus:border-1 outline-none border-border-default  focus:border-primary-light bg-gray-100 dark:bg-gray-800 text-text-primary dark:text-text-dark"
+          className="w-full p-3 h-10 rounded-[4px] text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
           placeholder="$ 5000.00"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
@@ -150,16 +150,16 @@ function CheckoutForm() {
 
       {/* Card Selection */}
       <div className="mb-4">
-        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-2">
+        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-2 text-left pl-3">
           Select Card
         </label>
         <div className="flex gap-4">
           {/* Visa */}
           <label
-            className={`cursor-pointer transition-all border rounded-xl p-2 w-20 h-9 ${
+            className={`cursor-pointer transition-all border  hover:scale-115  duration-300 shadow-lg rounded-[4px] p-2 w-20 h-9 ${
               cardType === "visa"
-                ? "border-primary-light shadow-md"
-                : "border-border-default"
+                ? "border-primary-light shadow-xl border-[1.8px]"
+                : "border-border-default border-[1px]"
             }`}
           >
             <input
@@ -179,10 +179,10 @@ function CheckoutForm() {
 
           {/* MasterCard */}
           <label
-            className={`cursor-pointer transition-all border rounded-xl p-2 w-20 h-9 ${
+            className={`cursor-pointer transition-all border  hover:scale-115  duration-300 shadow-lg rounded-[4px] p-2 w-20 h-9 ${
               cardType === "mastercard"
-                ? "border-primary-light shadow-md"
-                : "border-border-default"
+                ? "border-primary-light shadow-xl border-[1.8px]"
+                : "border-border-default border-[1px]"
             }`}
           >
             <input
@@ -202,10 +202,10 @@ function CheckoutForm() {
 
           {/* American Express */}
           <label
-            className={`cursor-pointer transition-all border rounded-xl p-2 w-20 h-9 ${
+            className={`cursor-pointer transition-all border  hover:scale-115  duration-300 shadow-lg rounded-[4px] p-2 w-20 h-9 ${
               cardType === "amex"
-                ? "border-primary-light shadow-md"
-                : "border-border-default"
+                ? "border-primary-light shadow-xl border-[1.8px]"
+                : "border-border-default border-[1px]"
             }`}
           >
             <input
@@ -225,10 +225,10 @@ function CheckoutForm() {
 
           {/* Stripe */}
           <label
-            className={`cursor-pointer transition-all border rounded-xl p-2 w-20 h-9 ${
+            className={`cursor-pointer transition-all border  hover:scale-115  duration-300 shadow-lg rounded-[4px] p-2 w-20 h-9 ${
               cardType === "Stripe"
-                ? "border-primary-light shadow-md"
-                : "border-border-default"
+                ? "border-primary-light shadow-xl border-[1.8px]"
+                : "border-border-default border-[1px]"
             }`}
           >
             <input
@@ -250,12 +250,12 @@ function CheckoutForm() {
 
       {/* Card Number */}
       <div className="mb-4">
-        <label className="block text-text-primary dark:text-text-dark text-sm font-medium">
+        <label className="block text-text-primary dark:text-text-dark text-sm font-medium text-left pl-3 mb-1">
           Card Number
         </label>
-        <div className="p-3 border h-10 rounded-[4px] focus:ring-0 focus:border-1 outline-none border-border-default  focus:border-primary-light  bg-gray-100 dark:bg-gray-800">
+        <div className="p-3 border h-10 rounded-[4px] focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light  bg-gray-0 dark:bg-gray-800">
           <CardNumberElement
-            options={{ style: { base: { fontSize: "16px", color: "#333" } } }}
+            options={{ style: { base: { fontSize: "13px", color: "#333" } } }}
           />
         </div>
       </div>
@@ -264,37 +264,39 @@ function CheckoutForm() {
       <div className="flex gap-4">
         {/* Expiration Date */}
         <div className="w-1/2">
-          <label className="block text-text-primary dark:text-text-dark text-sm font-medium">
+          <label className="block text-text-primary dark:text-text-dark text-sm font-medium text-left pl-3 mb-1">
             Expiration Date
           </label>
-          <div className="p-3 border border-border-default  rounded-[4px] h-10 bg-gray-100 dark:bg-gray-800">
+          <div className="p-3 border border-x-border-border1  rounded-[4px] h-10 bg-[white] dark:bg-gray-800">
             <CardExpiryElement
-              options={{ style: { base: { fontSize: "16px", color: "#333" } } }}
+              options={{ style: { base: { fontSize: "13px", color: "#333" } } }}
             />
           </div>
         </div>
 
         {/* CVC */}
         <div className="w-1/2">
-          <label className="block text-text-primary dark:text-text-dark text-sm font-medium">
+          <label className="block text-text-secondary dark:text-text-dark text-sm font-medium text-left pl-3 mb-1">
             CVC
           </label>
-          <div className="p-3 border border-border-default  rounded-[4px] h-10 bg-gray-100 dark:bg-gray-800">
+          <div className="p-3 border border-border-border1  rounded-[4px] h-10 bg-[white] dark:bg-gray-800">
             <CardCvcElement
-              options={{ style: { base: { fontSize: "16px", color: "#333" } } }}
+              options={{ style: { base: { fontSize: "13px", color: "#333" } } }}
             />
           </div>
         </div>
       </div>
 
       {/* Error Message */}
-      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+      {error && (
+        <p className="text-red-500 text-sm mt-2 text-left pl-3">{error}</p>
+      )}
 
       {/* Submit Button */}
       <button
         type="submit"
         disabled={!stripe || loading}
-        className={`w-full bg-primary-light text-white p-3 rounded-lg font-semibold mt-6 transition duration-300 ${
+        className={`w-full bg-primary-light h-10 text-white rounded-lg font-semibold mt-6 transition duration-300 ${
           loading
             ? "opacity-50"
             : "hover:bg-hover-light dark:hover:bg-hover-dark"

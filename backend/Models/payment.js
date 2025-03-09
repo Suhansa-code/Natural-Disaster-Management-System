@@ -15,6 +15,8 @@ const paymentSchema = new mongoose.Schema(
 
     currency: { type: String, default: "USD" }, // Currency used for payment
 
+    bankname: { type: String }, // Slip Upload Bank Name
+
     branch: { type: String }, // Slip Upload Branch
 
     status: {

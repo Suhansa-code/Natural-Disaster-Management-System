@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+import { CiExport } from "react-icons/ci";
+import { MdOutlineFilterList } from "react-icons/md";
+import { SlCalender } from "react-icons/sl";
+import Payment_Grid from "../Components/Payment_Grid.jsx";
 
 const Admin_Payment = () => {
   const [payments, setPayments] = useState([]);
@@ -16,22 +20,11 @@ const Admin_Payment = () => {
       const response = await fetch("http://localhost:5000/api/payment/");
       const data = await response.json(); // Convert response to JSON
       setPayments(data); // Set the data to state
+      console.log(data);
     } catch (error) {
       console.error("Error fetching payments:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const approvePayment = async (id, action_status) => {
-    console.log(id);
-    try {
-      await axios.put(`http://localhost:5000/api/payment/${id}`, {
-        status: action_status, // Ensure backend updates status
-      });
-      fetchPayments(); // Refresh the list after approval
-    } catch (error) {
-      console.error("Error approving payment:", error);
     }
   };
 
@@ -50,83 +43,87 @@ const Admin_Payment = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Payment Dashboard</h1>
-
-      {loading ? (
-        <p>Loading payments...</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Payment Table */}
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-4">Payments</h2>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="p-2 border">Username</th>
-                  <th className="p-2 border">Amount</th>
-                  <th className="p-2 border">Status</th>
-                  <th className="p-2 border">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {payments.map((payment) => (
-                  <tr key={payment._id} className="border text-center">
-                    <td className="p-2 border">{payment.username}</td>
-                    <td className="p-2 border">${payment.amount}</td>
-                    <td
-                      className={`p-2 border rounded-[20px] text-white ${payment.status === "successful" ? "bg-primary-light" : "bg-red-500"}`}
-                    >
-                      {payment.status}
-                    </td>
-                    <td className="p-2 border">
-                      {payment.status === "pending" && (
-                        <div className="flex flex-row gap-2">
-                          <button
-                            className="bg-green-500 text-white px-3 py-1 rounded"
-                            onClick={() =>
-                              approvePayment(payment._id, "successful")
-                            }
-                          >
-                            Approve
-                          </button>
-                          <button
-                            className="bg-red-500 text-white px-3 py-1 rounded"
-                            onClick={() =>
-                              approvePayment(payment._id, "failed")
-                            }
-                          >
-                            reject
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div className="flex flex-row justify-between gap-4 ">
+        <div className="flex flex-col gap-5 w-full">
+          <div className="flex flex-row justify-between w-full bg-white  rounded-[5px] p-5">
+            <div className="flex flex-col items-start">
+              <h2 className="text-text-primary text-[15px] font-semibold">
+                Donation Income
+              </h2>
+              <p className="text-text-secondary text-[12px] opacity-70  font-normal">
+                Listed below are all conclusion from donation income
+              </p>
+            </div>
+            <button
+              type="button"
+              className="mt-2 px-3 py-1 bg-white border border-border-default h-[30px]   text-gray-400 font-normal rounded-md text-[13px] hover:bg-gray-50"
+            >
+              <div className="flex flex-row items-center gap-2">
+                <CiExport className="text-gray-400 w-4 h-4" />
+                <p>Export Invoice</p>
+              </div>
+            </button>
           </div>
 
-          {/* Chart */}
-          <div className="bg-white p-4 rounded-lg shadow flex justify-center items-center">
-            <PieChart width={300} height={300}>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
+          <div className="flex flex-col w-full bg-white  rounded-[5px] p-5 gap-10">
+            <div className="flex flex-row justify-between ">
+              <div className="flex flex-col items-start">
+                <h2 className="text-text-primary text-[15px] font-semibold">
+                  Billing & Donations
+                </h2>
+                <p className="text-text-secondary text-[12px] opacity-70  font-normal">
+                  Listed below are all are your donations and bills
+                </p>
+              </div>
+              <div className="flex flex-row gap-3">
+                <button
+                  type="button"
+                  className="mt-2 px-3 py-1 bg-white border border-border-default h-[30px]   text-gray-400 font-normal rounded-md text-[13px] hover:bg-gray-50"
+                >
+                  <div className="flex flex-row items-center gap-2">
+                    <SlCalender className="text-gray-400 w-4 h-4" />
+                    <p>Select Date</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  className="mt-2 px-3 py-1 bg-white border border-border-default h-[30px]   text-gray-400 font-normal rounded-md text-[13px] hover:bg-gray-50"
+                >
+                  <div className="flex flex-row items-center gap-2">
+                    <MdOutlineFilterList className="text-gray-400 w-4 h-4" />
+                    <p>Apply Filter</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+            <Payment_Grid payments={payments} loading={loading} />
           </div>
         </div>
-      )}
+
+        <div className="flex flex-col max-w-screen-lg  bg-white shadow-sm rounded-[5px] p-5 min-w-[400px]">
+          {/* invoice Header */}
+          <div className="flex flex-row">
+            <div className="flex flex-row">
+              <img src="" alt="" />
+              <div className="flex flex-col">
+                <h3>Invoice</h3>
+                <p>#1234566</p>
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <p>Start Date : 12/04/2024</p>
+              <p>end Date : 12/24/2025</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <h2>Startling value</h2>
+            <p>4517 Washington , new york , Kentarkey 39495</p>
+          </div>
+
+          <h2>items details</h2>
+        </div>
+      </div>
     </div>
   );
 };

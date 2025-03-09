@@ -11,7 +11,7 @@ function App() {
       <Toaster position="top-center" containerStyle={{ top: 60 }} />
 
       <Routes>
-        <Route index element={<Admin_Payment />} />
+        <Route index element={<Payment />} />
         <Route path="/admin/payments" element={<Admin_Payment />} />
       </Routes>
     </BrowserRouter>
