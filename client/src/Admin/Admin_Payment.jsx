@@ -18,6 +18,7 @@ const Admin_Payment = () => {
   const [filterText, setFilterText] = useState("");
   const [sortOrder, setSortOrder] = useState("date-desc");
   const [progress, setProgress] = useState(40); // Change this value dynamically
+  const [selectedPeriod, setSelectedPeriod] = useState("Daily");
 
   const segments = [
     { value: 20 },
@@ -27,13 +28,32 @@ const Admin_Payment = () => {
     { value: 100 },
   ];
 
-  const data = [
-    { label: "Jan", value: 40 },
-    { label: "Feb", value: 60 },
-    { label: "Mar", value: 80 },
-    { label: "Apr", value: 100 },
-    { label: "May", value: 50 },
-  ];
+  const getChartData = (payments) => {
+    const monthMap = {};
+
+    // Iterate over each payment and accumulate values by month
+    payments.forEach((payment) => {
+      const date = new Date(payment.createdAt);
+      const month = date.toLocaleString("default", { month: "short" }); // Get the abbreviated month name
+      const year = date.getFullYear(); // Get the year
+      const monthYear = `${month}-${year}`; // Format it as "Mar-2025"
+
+      // Accumulate the amount for each month-year combination
+      if (!monthMap[monthYear]) {
+        monthMap[monthYear] = 0;
+      }
+      monthMap[monthYear] += payment.amount;
+    });
+
+    // Format the data into the required structure for the chart
+    const chartData = Object.keys(monthMap).map((monthYear) => {
+      return { label: monthYear, value: monthMap[monthYear] };
+    });
+
+    return chartData;
+  };
+  const data = getChartData(payments);
+
   useEffect(() => {
     fetchPayments();
   }, []);
@@ -96,10 +116,10 @@ const Admin_Payment = () => {
                   <RadioButton />
                   {/* Sorting Dropdown */}
                   <select className="border px-3 py-1 w-[120px] h-[30px] rounded-[4px] text-text-secondary outline-none text-[13px] border-gray-300 mt-3 mr-3 ">
-                    <option value="date-desc">Daily (Daily)</option>
-                    <option value="date-asc">Weekly (Weekly)</option>
-                    <option value="amount-desc">Monthly (Monthly)</option>
-                    <option value="amount-asc">Yearly (Yearly)</option>
+                    <option value="Daily">Daily (Daily)</option>
+                    <option value="Weekly">Weekly (Weekly)</option>
+                    <option value="Monthly">Monthly (Monthly)</option>
+                    <option value="Yearly">Yearly (Yearly)</option>
                   </select>
                 </div>
                 <VerticalBarChart data={data} />

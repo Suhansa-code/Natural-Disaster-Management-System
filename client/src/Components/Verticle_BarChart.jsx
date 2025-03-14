@@ -24,7 +24,7 @@ const VerticalBarChart = ({ data }) => {
             dataKey="label"
             axisLine={false}
             tick={{ fill: "#555" }}
-            className="text-[13px] font-normal text-gray-400 opacity-70"
+            className="text-[13px] font-normal text-gray-400 opacity-70 "
           />
           <YAxis tick={{ fill: "#555" }} hide={true} />
           <Tooltip
@@ -43,8 +43,9 @@ const VerticalBarChart = ({ data }) => {
           <Bar
             dataKey="value"
             fill="url(#barGradient)"
-            barSize={40}
-            radius={[4, 4, 0, 0]} // Rounded corners on top
+            barSize={30}
+            radius={[4, 4, 0, 0]}
+            // Rounded corners on top
           />
         </BarChart>
       </ResponsiveContainer>
