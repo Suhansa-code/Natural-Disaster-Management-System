@@ -1,10 +1,8 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import axios from 'axios';
-import PostView from './Pages/PostView';
-import AdminPanel from './Pages/AdminPanel';
 
 //Main Components Imports 
-
+import Home from './components/main-components/Home'; 
+import Navigationbar from './components/main-components/Navigationbar'; 
 
 
 
@@ -12,7 +10,7 @@ import AdminPanel from './Pages/AdminPanel';
 
 
 //Disaster management imports
-
+import AddDisaster from './components/disaster-management/AddDisaster';
 
 
 
@@ -23,7 +21,7 @@ import AdminPanel from './Pages/AdminPanel';
 
 
 //Comunity-support imports
-
+import PostView from './components/community-support/PostView';
 
 
 
@@ -64,16 +62,18 @@ function App() {
 
     
     <Router>
+      <Navigationbar />
       <Routes>
         {/* Main Components */}
-
+        <Route path="/" element={<Home />} />
+  
 
 
 
 
 
         {/* Disaster management */}
-
+        <Route path="/addDisaster" element={<AddDisaster />} />
 
 
 
@@ -83,9 +83,7 @@ function App() {
 
 
         {/* Comunity-support */}
-        <Route path="/adminposts" element={<AdminPanel />} />
-        <Route path="/posts" element={<PostView />} />
-
+        <Route path="/community" element={<PostView />} />
 
 
 
