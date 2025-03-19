@@ -249,13 +249,9 @@ const handleSubmit = async (e) => {
                 <Typography variant="body2" sx={{ fontSize: "16px", color: "#888" }}>
                   <strong>Date:</strong> {new Date(post.disasterDate).toLocaleDateString()}
                 </Typography>
-                 {/* Conditionally render isUpcoming based on category */}
-                {newPost.category === "Disaster" && (
-                <FormControlLabel
-                   control={<Checkbox name="isUpcoming" checked={newPost.isUpcoming} onChange={handleChange} />}
-                   label="Is this an upcoming disaster?"
-                />
-                )}
+                <Typography variant="body2" sx={{ fontSize: "16px", color: "#888" }}>
+                  <strong>Upcoming:</strong> {post.isUpcoming ? "Yes" : "No"}
+                </Typography>
                 {post.imageUrl && (
                   <CardMedia
                     component="img"
@@ -330,10 +326,13 @@ const handleSubmit = async (e) => {
               InputLabelProps={{ shrink: true }}
             />
             
-            <FormControlLabel
-              control={<Checkbox name="isUpcoming" checked={newPost.isUpcoming} onChange={handleChange} />}
-              label="Is this an upcoming disaster?"
-            />
+            {/* Conditionally render isUpcoming based on category */}
+            {newPost.category === "Disaster" && (
+              <FormControlLabel
+                control={<Checkbox name="isUpcoming" checked={newPost.isUpcoming} onChange={handleChange} />}
+                label="Is this an upcoming disaster?"
+              />
+            )}
 
             <input type="file" name="image" onChange={handleImageChange} />
 
