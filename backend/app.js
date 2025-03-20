@@ -4,10 +4,13 @@ const mongoose = require("mongoose");
 const router = require("./Route/disasterRoutes");
 //
 const app = express();
+const cors = require("cors");
 
+app.use(cors());
 //Middleware connection disater management
 app.use(express.json()); 
 app.use("/disaster" , router); 
+
 
 //Middleware connection comunity support
 
