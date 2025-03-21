@@ -36,8 +36,6 @@ export default function ViewDisasters() {
     <div>
       <br />
 
-      <h1>Disaster display Details</h1>
-
       <div>
         {disasterData.disasters && disasterData.disasters.length > 0 ? ( // Check if inquiryData is not null and has items
           disasterData.disasters.map((disasters, i) => (
