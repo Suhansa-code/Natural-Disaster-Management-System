@@ -234,7 +234,7 @@ export default function AddDisaster() {
               <div className="flex space-x-2">
                 <input type="text" name="Location"value={inputs.Location} onChange={handleChange} required className="mt-1 p-2 w-full border border-gray-300 rounded"/>
                 {/* <button type="button" onClick={} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"> Get Location</button>  */}
-              </div> 
+
             </div>
 
             
