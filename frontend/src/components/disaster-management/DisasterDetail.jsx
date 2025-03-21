@@ -9,8 +9,7 @@ export default function DisasterDetail(props) {
         severityLevel,
         description,
         images,
-        dateTimeOfIncident,
-        exactLocation,
+        Location,
         numberOfPeopleAffected,
         date,
         contact,
@@ -59,7 +58,7 @@ export default function DisasterDetail(props) {
                     <p className="text-lg font-semibold text-gray-700">Description: {description}</p>
                 </div>    
                 <div className="flex justify-between">
-                    <p className="text-lg font-semibold text-gray-700">Location: {exactLocation}</p>
+                    <p className="text-lg font-semibold text-gray-700">Location:* {Location} *</p>
                 </div>
 
                 <div className="flex justify-between">
