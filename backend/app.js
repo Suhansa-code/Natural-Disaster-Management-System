@@ -5,7 +5,7 @@ const router = require("./Route/disasterRoutes");
 const postsrouter = require("./Route/postsRoutes");
 //
 const app = express();
-const cors = require("cors");
+
 
 app.use(cors());
 //Middleware connection disater management

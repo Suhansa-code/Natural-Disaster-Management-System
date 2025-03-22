@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ThumbsUp } from "lucide-react";
+import Navigationbar from "../main-components/Navigationbar";
 
 const formatDate = (date) => {
   const now = new Date();
@@ -90,6 +91,9 @@ const PostView = () => {
   }
 
   return (
+    <>
+    <Navigationbar />
+
     <div className="p-10 bg-gradient-to-r from-red-300 to-orange-300 rounded-lg shadow-lg">
       <h1 className="text-center text-4xl text-white font-bold uppercase mb-6">Explore Posts</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -171,6 +175,7 @@ const PostView = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 
