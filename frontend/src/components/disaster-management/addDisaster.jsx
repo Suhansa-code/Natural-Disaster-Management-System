@@ -182,38 +182,44 @@ export default function AddDisaster() {
     return () => clearInterval(interval);
   }, [charIndex, isTyping, quoteIndex]);
 
-  const handleGetLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-  
-          try {
-            // Fetch location details using OpenStreetMap (Nominatim)
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-            );
-            const data = await response.json();
-            const address = data.display_name; // Get the formatted address
-  
-            setInputs((prevState) => ({
-              ...prevState,
-              Location: address,
-            }));
-          } catch (error) {
-            console.error("Error fetching location:", error);
-            alert("Unable to fetch location details. Try again.");
-          }
-        },
-        (error) => {
-          console.error("Geolocation Error:", error);
-          alert("Location access denied. Enable GPS and try again.");
+  const [loadingLocation, setLoadingLocation] = useState(false);
+
+const handleGetLocation = () => {
+  if (navigator.geolocation) {
+    setLoadingLocation(true); // Start loading
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
+          const data = await response.json();
+          const address = data.display_name;
+
+          setInputs((prevState) => ({
+            ...prevState,
+            Location: address,
+          }));
+        } catch (error) {
+          console.error("Error fetching location:", error);
+          alert("Unable to fetch location details. Try again.");
+        } finally {
+          setLoadingLocation(false); // Stop loading
         }
-      );
-    } else {
-      alert("Geolocation is not supported by this browser.");
-    }
-  };
+      },
+      (error) => {
+        console.error("Geolocation Error:", error);
+        alert("Location access denied. Enable GPS and try again.");
+        setLoadingLocation(false); // Stop loading
+      }
+    );
+  } else {
+    alert("Geolocation is not supported by this browser.");
+  }
+};
+
   
   return (
     <>
@@ -269,8 +275,20 @@ export default function AddDisaster() {
               <label className="block text-sm font-medium text-gray-700"> Location </label>
               <div className="flex space-x-2">
                 <input type="text" name="Location"value={inputs.Location} onChange={handleChange} required className="mt-1 p-2 w-full border border-gray-300 rounded"/>
-               <button type="button" onClick={handleGetLocation} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"> Get Location</button>  
-
+                <button type="button"  onClick={handleGetLocation} className="ml-2 px-4 py-2  bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center" disabled={loadingLocation}
+>
+                {loadingLocation ? (
+                   <>
+                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24"> <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"  strokeWidth="4"> </circle>
+                 <path className="opacity-75" fill="currentColor"  d="M4 12a8 8 0 0116 0H4z" ></path>
+                  </svg>
+                      Fetching...
+                  </>
+                   ) : (
+                   "click here"
+                     )}
+                    </button>
+  
                 </div>
 
             </div>
