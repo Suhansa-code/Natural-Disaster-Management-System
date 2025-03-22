@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash, FaThumbsUp, FaPlus } from "react-icons/fa"; // Added FaPlus icon
+import { FaEdit, FaTrash, FaThumbsUp, FaPlus } from "react-icons/fa"; 
+import Footer from "../main-components/footer";
 
 const ViewPosts = () => {
   const [posts, setPosts] = useState([]);
@@ -86,6 +87,7 @@ const ViewPosts = () => {
 
 
   return (
+    <>
     <div className="min-h-screen bg-gray-300 py-10">
       <div className="container mx-auto px-4 md:px-30 lg:px-50 relative"> 
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">All Posts</h1>
@@ -274,6 +276,8 @@ const ViewPosts = () => {
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 };
 
