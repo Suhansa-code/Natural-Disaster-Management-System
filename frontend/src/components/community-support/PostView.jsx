@@ -101,11 +101,15 @@ const PostView = () => {
                         <ThumbsUp className="w-6 h-6" />
                         <span>{post.likes.length} Likes</span>
                       </button>
-                      <span className={`text-sm font-bold ${post.isUpcoming ? 'text-green-400' : 'text-red-400'}`}>
-                        {post.isUpcoming ? "Upcoming" : "Ongoing"}
-                      </span>
+                         <span className={`text-sm font-bold ${post.isUpcoming ? 'text-green-400' : 'text-red-400'}`}>
+                          {post.isUpcoming ? "Upcoming" : "Ongoing"}
+                         </span>
+                          {post.isUpcoming && post.disasterDate && new Date(post.disasterDate) > new Date() && (
+                        <div className="text-sm text-red-400 mt-2">
+                          <strong>Disaster Date:</strong> {new Date(post.disasterDate).toLocaleDateString()}
+                        </div>
+                        )}
                     </div>
-
                     <div className="mt-6">
                       <h3 className="text-lg font-semibold text-white">Comments</h3>
                       <div className="mt-2 space-y-3">
