@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState , useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Navigationbar from "../main-components/Navigationbar";
 
 export default function AddDisaster() {
   const history = useNavigate();
@@ -213,12 +214,14 @@ export default function AddDisaster() {
   };
   
   return (
-    <div className="flex h-screen overflow-hidden ">
+    <>
+    <Navigationbar />
+    <div className="flex h-screen ">
     
       {/* Left Side - Form */}
-      <div className="w-1/2 flex items-center justify-center p-10 bg-gray-100 rounded-tl-lg rounded-bl-lg">
+      <div className="w-1/2 flex items-center justify-center p-1 bg-gray-100 rounded-tl-lg rounded-bl-lg">
         <div className="max-w-lg w-full">
-          <h2 className="text-2xl font-bold mb-10"> Enter Here </h2>
+          <h2 className="text-2xl font-bold mb-10 text-center"> Enter Here </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
 
             <div>
@@ -290,7 +293,7 @@ export default function AddDisaster() {
             </div>
 
             <button
-              type="submit" className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-yellow-500 w-full" onClick={handleSubmit}>SUBMIT</button>
+              type="submit" className=" p-1 bg-red-500 text-white rounded hover:bg-yellow-500 w-full" onClick={handleSubmit}>SUBMIT</button>
           </form>
         </div>
       </div>
@@ -305,6 +308,8 @@ export default function AddDisaster() {
         <span className="relative z-10">{text}</span>
       </div>
     </div>
+    </>
   );
+ 
 };
 

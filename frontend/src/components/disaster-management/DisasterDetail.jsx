@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+//import Navigationbar from '../main-components/Navigationbar';
 import axios from 'axios';
 
 export default function DisasterDetail(props) {
@@ -37,6 +38,7 @@ export default function DisasterDetail(props) {
     };
 
     return (
+       
         <div className="max-w-3xl mx-auto p-24 bg-gray rounded-lg shadow-lg ">
             <p className="text-3xl font-semibold text-gray-800 mb-6">View Disaster Details</p>
             <p className="text-gray-600 mb-6">Here are the details of the selected disaster. Please review the information below:</p>
@@ -79,5 +81,6 @@ export default function DisasterDetail(props) {
                 </div>
             </div>
         </div>
+        
     );
 }
