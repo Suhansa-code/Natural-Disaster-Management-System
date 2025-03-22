@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DisasterDetail from "./DisasterDetail";
 import Navigationbar from "../main-components/Navigationbar";
+import Footer from "../main-components/footer";
 
 
 
@@ -53,6 +54,7 @@ export default function ViewDisasters() {
         )}
       </div>
     </div>
+    <Footer/>
     </>
   );
 }

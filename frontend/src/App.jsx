@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 //Main Components Imports 
 import Home from './components/main-components/homecomp/home'; 
-
+import Footer from './components/main-components/footer';
 import UserLogin from './components/main-components/Userlog/userlogin';
 
 import About from "./components/main-components/About";
@@ -71,6 +71,8 @@ function App() {
         <Route path="/" element={<UserLogin />} />
         <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About/>} />
+        <Route path="/footer" element={<Footer />} />
+
   
 
 

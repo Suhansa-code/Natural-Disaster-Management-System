@@ -2,6 +2,8 @@ import axios from "axios";
 import React, { useState , useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigationbar from "../main-components/Navigationbar";
+import Footer from "../main-components/footer";
+
 
 export default function AddDisaster() {
   const history = useNavigate();
@@ -308,6 +310,7 @@ export default function AddDisaster() {
         <span className="relative z-10">{text}</span>
       </div>
     </div>
+    <Footer/>
     </>
   );
  
