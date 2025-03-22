@@ -232,7 +232,7 @@ export default function UpdateDisaster() {
         </form>
       </div>
     </div>
-
+    <Footer/>
     </>
   );
 }

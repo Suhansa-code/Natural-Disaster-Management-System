@@ -308,6 +308,7 @@ export default function AddDisaster() {
         <span className="relative z-10">{text}</span>
       </div>
     </div>
+    <Footer/>
     </>
   );
  

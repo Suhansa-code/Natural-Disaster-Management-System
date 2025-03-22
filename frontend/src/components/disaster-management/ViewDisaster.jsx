@@ -53,6 +53,7 @@ export default function ViewDisasters() {
         )}
       </div>
     </div>
+    <Footer/>
     </>
   );
 }
