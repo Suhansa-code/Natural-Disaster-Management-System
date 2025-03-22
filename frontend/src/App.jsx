@@ -2,10 +2,10 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 //Main Components Imports 
 import Home from './components/main-components/homecomp/home'; 
-
+import Footer from './components/main-components/footer';
 import UserLogin from './components/main-components/Userlog/userlogin';
 
-
+import About from "./components/main-components/About";
 
 
 
@@ -24,8 +24,9 @@ import UpdateDisaster from './components/disaster-management/updateDisaster';
 
 //Comunity-support imports
 import PostView from './components/community-support/PostView';
-
-
+import AdminPanel from './components/community-support/AdminPanel';
+import AddPosts from './components/community-support/addPosts';
+import ViewPosts from './components/community-support/adminPostsView';
 
 
 
@@ -69,6 +70,9 @@ function App() {
         {/* Main Components */}
         <Route path="/" element={<UserLogin />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/about" element={<About/>} />
+        <Route path="/footer" element={<Footer />} />
+
   
 
 
@@ -89,6 +93,9 @@ function App() {
 
         {/* Comunity-support */}
         <Route path="/community" element={<PostView />} />
+        <Route path="/adminposts" element={<AdminPanel/>} />
+        <Route path="/addposts" element={<AddPosts/>} />
+        <Route path="/adminpostsview" element={<ViewPosts/>} />
 
 
 
