@@ -8,7 +8,7 @@ const Navigationbar = () => {
         <nav className="bg-blue-500 px-6 py-4">
             <ul className="flex space-x-8 justify-center">
                 <li className="text-white">
-                    <Link to="/">Home</Link>
+                    <Link to="/home">Home</Link>
                 </li>
                 <li className="text-white">
                     <Link to="/addDisaster">Add Disaster</Link>
