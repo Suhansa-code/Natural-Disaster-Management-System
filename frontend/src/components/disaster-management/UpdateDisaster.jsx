@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Navigationbar from "../main-components/Navigationbar";
 
 export default function UpdateDisaster() {
   const [inputs, setInputs] = useState({});
@@ -121,6 +122,8 @@ export default function UpdateDisaster() {
   };
 
   return (
+    <>
+    <Navigationbar />
     <div className="container mx-auto p-4 max-w-lg ">
       <h1 className="text-2xl font-bold mb-4 text-center">UPDATE DISASTER</h1>
       <div>
@@ -229,5 +232,7 @@ export default function UpdateDisaster() {
         </form>
       </div>
     </div>
+
+    </>
   );
 }
