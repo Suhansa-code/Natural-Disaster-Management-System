@@ -22,8 +22,9 @@ import AddDisaster from './components/disaster-management/AddDisaster';
 
 //Comunity-support imports
 import PostView from './components/community-support/PostView';
-
-
+import AdminPanel from './components/community-support/AdminPanel';
+import AddPosts from './components/community-support/addPosts';
+import ViewPosts from './components/community-support/adminPostsView';
 
 
 
@@ -84,6 +85,9 @@ function App() {
 
         {/* Comunity-support */}
         <Route path="/community" element={<PostView />} />
+        <Route path="/adminposts" element={<AdminPanel/>} />
+        <Route path="/addposts" element={<AddPosts/>} />
+        <Route path="/adminpostsview" element={<ViewPosts/>} />
 
 
 
