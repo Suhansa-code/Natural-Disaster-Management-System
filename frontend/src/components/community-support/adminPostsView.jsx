@@ -159,13 +159,13 @@ const ViewPosts = () => {
               <div className="space-y-2">
                 <label htmlFor="disasterDate" className="block text-gray-700">Disaster Date</label>
                 <input
-                  id="disasterDate"
-                  type="date"
-                  value={disasterDate}
-                  onChange={(e) => setDisasterDate(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    id="disasterDate"
+                    type="date"
+                    value={disasterDate ? disasterDate.split('T')[0] : ''} 
+                    onChange={(e) => setDisasterDate(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
-              </div>
+            </div>
 
               <div className="space-y-2">
                 <label htmlFor="imageUrl" className="block text-gray-700">Image URL</label>
