@@ -3,6 +3,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navigationbar from "../main-components/Navigationbar";
+import Footer from "../main-components/footer";
 
 export default function UpdateDisaster() {
   const [inputs, setInputs] = useState({});
