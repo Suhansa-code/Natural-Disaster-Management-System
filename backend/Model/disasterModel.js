@@ -19,21 +19,22 @@ const disasterSchema = new Schema({
             type: String // Store image URLs (e.g., from cloud storage like AWS S3, Firebase, etc.)
         }
     ],
-    dateTimeOfIncident: {
+    date: {
         type: Date,
         default: Date.now // Auto-set to current time but can be changed
     },
-    exactLocation: {
-        latitude: { type: Number, required: true },
-        longitude: { type: Number, required: true }
+    Location: {
+       type: String,
+        required: true
     },
     numberOfPeopleAffected: {
         type: Number,
         default: 0 // Optional, default value set to zero
     },
-    additionalNotes: {
-        type: String
+    contact: {
+        type: Number
     }
+
 });
 
 module.exports = mongoose.model(

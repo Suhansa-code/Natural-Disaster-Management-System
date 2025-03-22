@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Ignore runtime files
+node_modules/
+.env
+*.log
+dist/
+build/
+
