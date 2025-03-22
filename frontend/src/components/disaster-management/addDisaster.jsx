@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState , useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Navigationbar from "../main-components/Navigationbar";
 
 export default function AddDisaster() {
   const history = useNavigate();
@@ -179,15 +180,48 @@ export default function AddDisaster() {
     return () => clearInterval(interval);
   }, [charIndex, isTyping, quoteIndex]);
 
-
-
+  const handleGetLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+  
+          try {
+            // Fetch location details using OpenStreetMap (Nominatim)
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+            );
+            const data = await response.json();
+            const address = data.display_name; // Get the formatted address
+  
+            setInputs((prevState) => ({
+              ...prevState,
+              Location: address,
+            }));
+          } catch (error) {
+            console.error("Error fetching location:", error);
+            alert("Unable to fetch location details. Try again.");
+          }
+        },
+        (error) => {
+          console.error("Geolocation Error:", error);
+          alert("Location access denied. Enable GPS and try again.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  };
+  
   return (
-    <div className="flex h-screen overflow-hidden ">
+    <>
+    <Navigationbar />
+    <div className="flex h-screen ">
     
       {/* Left Side - Form */}
-      <div className="w-1/2 flex items-center justify-center p-10 bg-gray-100 rounded-tl-lg rounded-bl-lg">
+      <div className="w-1/2 flex items-center justify-center p-1 bg-gray-100 rounded-tl-lg rounded-bl-lg">
         <div className="max-w-lg w-full">
-          <h2 className="text-2xl font-bold mb-10">Enter Here </h2>
+          <h2 className="text-2xl font-bold mb-10 text-center"> Enter Here </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
 
             <div>
@@ -233,7 +267,9 @@ export default function AddDisaster() {
               <label className="block text-sm font-medium text-gray-700"> Location </label>
               <div className="flex space-x-2">
                 <input type="text" name="Location"value={inputs.Location} onChange={handleChange} required className="mt-1 p-2 w-full border border-gray-300 rounded"/>
-                {/* <button type="button" onClick={} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"> Get Location</button>  */}
+               <button type="button" onClick={handleGetLocation} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"> Get Location</button>  
+
+                </div>
 
             </div>
 
@@ -251,13 +287,13 @@ export default function AddDisaster() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700"> Phone Number{" "} </label>
+              <label className="block text-sm font-medium text-gray-700"> Phone Number</label>
               <input type="text" name="contact" value={inputs.contact} onChange={handleChange} placeholder="Enter phone" className="mt-1 p-2 w-full border border-gray-300 rounded"/>
               {errors.contact && <p className="text-red-500 text-xs italic">{errors.contact}</p>}
             </div>
 
             <button
-              type="submit" className="mt-4 p-2 bg-red-500 text-white rounded hover:bg-yellow-500 w-full" onClick={handleSubmit}>SUBMIT</button>
+              type="submit" className=" p-1 bg-red-500 text-white rounded hover:bg-yellow-500 w-full" onClick={handleSubmit}>SUBMIT</button>
           </form>
         </div>
       </div>
@@ -272,6 +308,8 @@ export default function AddDisaster() {
         <span className="relative z-10">{text}</span>
       </div>
     </div>
+    </>
   );
+ 
 };
 

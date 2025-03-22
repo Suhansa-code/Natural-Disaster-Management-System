@@ -1,8 +1,9 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 //Main Components Imports 
-import Home from './components/main-components/Home'; 
-import Navigationbar from './components/main-components/Navigationbar'; 
+import Home from './components/main-components/homecomp/home'; 
+
+import UserLogin from './components/main-components/Userlog/userlogin';
 
 
 
@@ -10,7 +11,7 @@ import Navigationbar from './components/main-components/Navigationbar';
 
 
 //Disaster management imports
-import AddDisaster from './components/disaster-management/AddDisaster';
+import AddDisaster from './components/disaster-management/addDisaster';
 import ViewDisaster from './components/disaster-management/ViewDisaster';
 import UpdateDisaster from './components/disaster-management/updateDisaster';
 
@@ -63,10 +64,11 @@ function App() {
 
     
     <Router>
-      <Navigationbar />
+       
       <Routes>
         {/* Main Components */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<UserLogin />} />
+        <Route path="/home" element={<Home />} />
   
 
 

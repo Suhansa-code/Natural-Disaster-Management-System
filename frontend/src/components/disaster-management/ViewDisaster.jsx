@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DisasterDetail from "./DisasterDetail";
+import Navigationbar from "../main-components/Navigationbar";
 
 
 
@@ -33,6 +34,8 @@ export default function ViewDisasters() {
 
   console.log(disasterData.disasters);
   return (
+    <>
+        <Navigationbar />
     <div>
       <br />
 
@@ -50,5 +53,6 @@ export default function ViewDisasters() {
         )}
       </div>
     </div>
+    </>
   );
 }
