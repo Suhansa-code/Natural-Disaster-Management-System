@@ -3,11 +3,12 @@ import Navigationbar from '../Navigationbar';
 import Footer from '../footer';
 import homeImage from '../../../assets/home.jpg';
 
+
 const Home = () => {
     return (
         <>
             <Navigationbar />
-           
+          
             <div className="relative text-center p-12 bg-cover bg-center" >
                 <div className="bg-opacity-50 p-10 rounded-lg  "style={{ backgroundImage: `url(${homeImage})`, backgroundSize: "cover", backgroundPosition: "center" }} >
                     <h1 className="text-4xl font-bold text-white mb-4">Welcome to the Natural Disaster Management System</h1>

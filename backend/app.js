@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = require("./Route/disasterRoutes");
 const postsrouter = require("./Route/postsRoutes");
+
 //
 const app = express();
 
@@ -31,63 +32,6 @@ app.use("/api/posts" , postsrouter);
 
 
 //Middleware connection main components
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
