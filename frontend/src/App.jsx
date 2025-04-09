@@ -13,7 +13,7 @@ import About from "./components/main-components/About";
 //Disaster management imports
 import AddDisaster from './components/disaster-management/addDisaster';
 import ViewDisaster from './components/disaster-management/ViewDisaster';
-import UpdateDisaster from './components/disaster-management/updateDisaster';
+import UpdateDisaster from './components/disaster-management/UpdateDisaster';
 
 
 
