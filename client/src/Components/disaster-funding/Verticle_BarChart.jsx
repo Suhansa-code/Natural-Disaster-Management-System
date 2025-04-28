@@ -9,9 +9,12 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const VerticalBarChart = ({ data }) => {
+const VerticalBarChart = ({ data, height }) => {
   return (
-    <div className="w-full h-64 bg-white px-4 py-2 rounded-xl ">
+    <div
+      className="w-full bg-white px-4 py-2 rounded-xl"
+      style={{ height: height || "16rem" }}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}

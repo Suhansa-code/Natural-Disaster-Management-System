@@ -4,6 +4,7 @@ import {
   verifyPayment,
   getPaymentList,
   updatePayment,
+  deletePayment,
 } from "../Controllers/PaymentController.js";
 
 const router = express.Router();
@@ -19,5 +20,8 @@ router.get("/", getPaymentList);
 
 // Approve Payment
 router.put("/:id", updatePayment);
+
+//Delete Payment Recode
+router.delete("/delete/:id", deletePayment);
 
 export default router;

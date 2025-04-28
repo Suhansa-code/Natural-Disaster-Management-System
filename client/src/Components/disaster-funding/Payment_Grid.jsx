@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { IoDocumentOutline } from "react-icons/io5";
+import { MdDeleteForever } from "react-icons/md";
 import axios from "axios";
 const Payment_Grid = ({
   payments,
@@ -48,6 +49,21 @@ const Payment_Grid = ({
       fetchPayments(); // Refresh the list after approval
     } catch (error) {
       console.error("Error approving payment:", error);
+    }
+  };
+
+  const deletePaymentRecode = async (id) => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this payment?"
+    );
+    if (!isConfirmed) return; // Exit if user cancels
+
+    console.log("Deleting payment with ID:", id);
+    try {
+      await axios.delete(`http://localhost:5000/api/payment/delete/${id}`);
+      fetchPayments(); // Refresh the list after deletion
+    } catch (error) {
+      console.error("Error deleting payment:", error);
     }
   };
 
@@ -142,25 +158,34 @@ const Payment_Grid = ({
                   <>
                     <button
                       onClick={() => approvePayment(payment._id, "Successful")}
-                      className="px-2 py-0 bg-white border border-primary-light h-[26px] w-[66px] text-primary-light hover:bg-green-100 transition-all duration-200 font-normal rounded-[4px] text-[13px]"
+                      className="px-2 py-0 bg-white border border-primary-light h-[26px] w-[70px] text-primary-light hover:bg-green-100 transition-all duration-200 font-normal rounded-[4px] text-[13px]"
                     >
                       Approve
                     </button>
                     <button
                       onClick={() => approvePayment(payment._id, "Failed")}
-                      className="px-2 py-0 bg-white border border-primary-red h-[26px] w-[66px] text-primary-red hover:bg-red-100 transition-all duration-200 font-normal rounded-[4px] text-[13px]"
+                      className="px-2 py-0 bg-white border border-primary-red h-[26px] w-[70px] text-primary-red hover:bg-red-100 transition-all duration-200 font-normal rounded-[4px] text-[13px]"
                     >
                       Reject
                     </button>
                   </>
                 ) : (
-                  <button
-                    onClick={() => approvePayment(payment._id, "Failed")}
-                    className="px-2 py-0 bg-white border border-border-default h-[26px] w-[140px] flex items-center justify-around text-text-secondary hover:bg-gray-100 transition-all duration-200 font-normal rounded-[4px] text-[13px]"
-                  >
-                    <IoDocumentOutline className="text-[14px]" />
-                    View Invoice
-                  </button>
+                  <div className="flex flex-row justify-center items-center gap-[5px]">
+                    <button
+                      onClick={() => approvePayment(payment._id, "Failed")}
+                      className="px-2 py-0 bg-white border border-border-default h-[26px] w-[115px] flex items-center justify-around text-text-secondary hover:bg-gray-100 transition-all duration-200 font-normal rounded-[4px] text-[13px]"
+                    >
+                      <IoDocumentOutline className="text-[14px]" />
+                      View Details
+                    </button>
+                    <button
+                      onClick={() => deletePaymentRecode(payment._id)}
+                      title="Delete Payment Recode"
+                      className=" py-0 bg-white border border-border-default  h-[26px] w-[26px] flex items-center justify-around text-text-secondary hover:bg-gray-100 transition-all duration-200 font-normal rounded-[4px] text-[13px]"
+                    >
+                      <MdDeleteForever className="text-[16px] text-red-600 " />
+                    </button>
+                  </div>
                 )}
               </div>
               {/* Separator */}

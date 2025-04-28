@@ -30,7 +30,9 @@ export const createPayment = async (req, res) => {
 
     await newPayment.save();
 
-    res.json({ clientSecret: paymentIntent.client_secret });
+    res.json({
+      clientSecret: paymentIntent.client_secret,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -51,9 +53,12 @@ export const verifyPayment = async (req, res) => {
       slipImage,
       email,
     });
+    const savedPayment = await newPayment.save();
 
-    await newPayment.save();
-    res.json({ message: "Bank transfer payment submitted for verification." });
+    res.json({
+      message: "Bank transfer payment submitted for verification.",
+      paymentId: savedPayment._id,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -82,5 +87,22 @@ export const updatePayment = async (req, res) => {
     res.json({ message: "Payment approved successfully", payment });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Delete Payment Record Controller
+export const deletePayment = async (req, res) => {
+  try {
+    const payment = await Payment.findById(req.params.id);
+
+    if (!payment) {
+      return res.status(404).json({ message: "Payment record not found" });
+    }
+
+    await Payment.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "Payment record deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

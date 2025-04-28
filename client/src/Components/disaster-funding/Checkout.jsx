@@ -6,10 +6,11 @@ import {
   CardCvcElement,
 } from "@stripe/react-stripe-js";
 import { useState } from "react";
-import Stripe_img from "../assets/Icons/Stripe.png";
-import Amex_img from "../assets/Icons/American Express.png";
+import Stripe_img from "../../assets/Icons/Stripe.png";
+import Amex_img from "../../assets/Icons/American Express.png";
 import toast from "react-hot-toast";
 import jsPDF from "jspdf";
+import { SiTicktick } from "react-icons/si";
 
 function CheckoutForm() {
   const stripe = useStripe();
@@ -19,7 +20,78 @@ function CheckoutForm() {
   const [email, setEmail] = useState("");
   const [amount, setAmount] = useState("");
   const [cardType, setCardType] = useState("visa");
+  const [email_error, set_email_Error] = useState("");
   const [error, setError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [Amounterror, setAmountError] = useState("");
+
+  // Email Validation Function
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Name Validation Function
+  const validateName = (name) => {
+    const nameRegex = /^[A-Za-z\s]+$/; // Allows only letters and spaces
+    return nameRegex.test(name);
+  };
+
+  const validateAmount = (value) => {
+    const amountRegex = /^[0-9]+(\.[0-9]{1,2})?$/; // Allows only numbers and up to 2 decimal places
+    return amountRegex.test(value);
+  };
+
+  const handleKeyDown = (e) => {
+    if (["e", "E", "-", "+", ".", ",", "=", "/"].includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  // Handle Input Change
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+
+    // Check if email is valid
+    if (value && !validateEmail(value)) {
+      set_email_Error("Please enter a valid email address.");
+    } else {
+      set_email_Error(""); // Clear error if valid
+    }
+  };
+
+  // Handle name Input Change
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+
+    if (!value) {
+      setNameError("Name is required.");
+    } else if (!validateName(value)) {
+      setNameError("Only letters and spaces are allowed.");
+    } else if (value.trim().length < 4) {
+      setNameError("Name must be at least 4 characters long.");
+    } else {
+      if (error == nameError) {
+        setError("");
+      }
+      setNameError("");
+    }
+  };
+
+  // Handle Amount Input Change
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+
+    // Prevent non-numeric input
+    if (value === "" || validateAmount(value)) {
+      setAmount(value);
+      setAmountError(""); // Clear error if valid
+    } else {
+      setAmountError("Please enter a valid positive number.");
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -29,6 +101,12 @@ function CheckoutForm() {
     if (!stripe || !elements) return;
     if (!name || !email) {
       setError("Please fill in all fields.");
+      setLoading(false);
+      return;
+    }
+
+    if (nameError) {
+      setError(nameError);
       setLoading(false);
       return;
     }
@@ -68,7 +146,6 @@ function CheckoutForm() {
       doc.save("Payment_Receipt.pdf");
 
       // Send Email
-      //sendEmail(name, email);
     }
 
     setLoading(false);
@@ -100,14 +177,10 @@ function CheckoutForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-lg mx-auto ml-2 p-6 rounded-xl shadow-lg bg-white dark:bg-slate-800 transition-all"
+      className="max-w-lg mx-auto px-6  dark:bg-slate-800 transition-all"
     >
-      <h2 className="text-md font-medium text-text-primary mb-5">
-        Online Payment
-      </h2>
-
       {/* Name Input */}
-      <div className="mb-4">
+      <div className="mb-4 text-left">
         <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1 text-left pl-3 ">
           Name
         </label>
@@ -116,26 +189,41 @@ function CheckoutForm() {
           className="w-full p-3 h-10 rounded-[4px] text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
           placeholder="John Doe"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={handleNameChange}
         />
+        {/* Error Message */}
+        {nameError && (
+          <p className="text-red-500 text-[12px] mt-1 pl-3">{nameError}</p>
+        )}
       </div>
 
       {/* Email Input */}
-      <div className="mb-4">
+      <div className="mb-4 text-left">
         <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1 text-left pl-3 ">
           Email
         </label>
-        <input
-          type="email"
-          className="w-full p-3 h-10 rounded-[4px] text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
-          placeholder="johndoe@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <div className="relative flex items-center">
+          <input
+            type="email"
+            className="w-full p-3 h-10 rounded-[4px] text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
+            placeholder="johndoe@example.com"
+            value={email}
+            onChange={handleEmailChange}
+          ></input>
+          {email && !email_error && (
+            <div className="absolute right-0 w-3 h-3 mr-4">
+              <SiTicktick className="text-green-500" />
+            </div>
+          )}
+        </div>
+        {/* Error Message */}
+        {email_error && (
+          <p className="text-red-500 text-[12px] mt-1 pl-3">{email_error}</p>
+        )}
       </div>
 
       {/* Amount Input */}
-      <div className="mb-4">
+      <div className="mb-4 text-left">
         <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1 text-left pl-3 ">
           Amount
         </label>
@@ -144,8 +232,17 @@ function CheckoutForm() {
           className="w-full p-3 h-10 rounded-[4px] text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
           placeholder="$ 5000.00"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={handleAmountChange}
+          onKeyDown={handleKeyDown}
+          min="100"
+          step="1"
         />
+        {/* Error Message */}
+        {amount < 100 && amount && (
+          <p className="text-red-500 text-[12px] mt-1 pl-3">
+            Amount must be a positive number and at least $100.
+          </p>
+        )}
       </div>
 
       {/* Card Selection */}
@@ -289,7 +386,7 @@ function CheckoutForm() {
 
       {/* Error Message */}
       {error && (
-        <p className="text-red-500 text-sm mt-2 text-left pl-3">{error}</p>
+        <p className="text-red-500 text-[12px] mt-2 text-left pl-3">{error}</p>
       )}
 
       {/* Submit Button */}
