@@ -82,7 +82,7 @@ export default function ViewDisasters() {
   return (
     <>
       <div>
-        <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-6 pt-20">
+        <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-6 pt-6">
           {/* Grid Background */}
           <div className="absolute inset-0 z-0 opacity-10">
             <div
