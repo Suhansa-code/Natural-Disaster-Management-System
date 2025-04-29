@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DisasterDetail from "./DisasterDetail";
+import Navigationbar from "../main-components/Navigationbar";
+import Footer from "../main-components/footer";
 
 
 
@@ -33,10 +35,10 @@ export default function ViewDisasters() {
 
   console.log(disasterData.disasters);
   return (
+    <>
+        <Navigationbar />
     <div>
       <br />
-
-      <h1>Disaster display Details</h1>
 
       <div>
         {disasterData.disasters && disasterData.disasters.length > 0 ? ( // Check if inquiryData is not null and has items
@@ -52,5 +54,7 @@ export default function ViewDisasters() {
         )}
       </div>
     </div>
+    <Footer/>
+    </>
   );
 }

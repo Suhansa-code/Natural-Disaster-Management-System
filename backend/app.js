@@ -1,10 +1,12 @@
-
+const cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
 const router = require("./Route/disasterRoutes");
+const postsrouter = require("./Route/postsRoutes");
+
 //
 const app = express();
-const cors = require("cors");
+
 
 app.use(cors());
 //Middleware connection disater management
@@ -13,7 +15,9 @@ app.use("/disaster" , router);
 
 
 //Middleware connection comunity support
-
+app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+app.use("/api/posts" , postsrouter); 
 
 
 
@@ -28,63 +32,6 @@ app.use("/disaster" , router);
 
 
 //Middleware connection main components
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

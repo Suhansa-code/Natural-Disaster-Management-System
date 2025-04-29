@@ -1,0 +1,20 @@
+services:
+  frontend:  # Matches your React frontend folder
+    build: ./frontend  # Changed from ./client
+    ports: ["3000:80"]
+    depends_on: ["backend"]
+
+  backend:  # Matches your Node.js backend folder
+    build: ./backend  # Changed from ./server
+    ports: ["5000:5000"]
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/"mongodb+srv://suhansa2816:CeGgHAqRueGl8QPC@cluster0.jzg8g.mongodb.net/"
+    depends_on: ["mongo"]
+
+  mongo:
+    image: mongo:6
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
