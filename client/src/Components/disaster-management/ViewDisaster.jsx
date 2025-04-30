@@ -19,19 +19,6 @@ import {
 import { BackgroundBeams } from "../../Components/ui/background-beams";
 import Disaster_form from "../disaster-management/DisasterForm";
 
-const URL = "http://localhost:5000/api/disaster";
-
-const fetchHandler = async () => {
-  try {
-    const response = await axios.get(URL);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching disaster data:", error);
-    toast.error("Error fetching disaster data:", error);
-    return { disasterData: [] };
-  }
-};
-
 const formatDate = (dateString) => {
   const dateObj = new Date(dateString);
   const year = dateObj.getFullYear();
@@ -62,12 +49,83 @@ export default function ViewDisasters() {
   const [dateError, setDateError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [editingdisaster, setEditingdisaster] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   const [disasterData, setDisasterData] = useState([]);
   const [viewMode, setViewMode] = useState("grid");
   const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const fetchDisaster = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/disaster", {
+        method: "GET",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch disaster");
+      }
+
+      setDisasterData(data || []);
+    } catch (error) {
+      toast.error("Error fetching disasters:", error.message);
+      console.error("Error fetching disasters:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelte = async (id) => {
+    try {
+      toast(
+        (t) => (
+          <div className="flex items-center gap-4 ">
+            <p>Are you sure you want to delete this disaster?</p>
+            <div className="flex gap-2">
+              <button
+                onClick={async () => {
+                  const response = await fetch(
+                    `http://localhost:5000/api/disaster/${id}`,
+                    {
+                      method: "DELETE",
+                    }
+                  );
+
+                  const data = await response.json();
+
+                  if (!response.ok) {
+                    throw new Error(
+                      data.message || "Failed to delete disaster"
+                    );
+                  }
+                  fetchDisaster();
+                  toast.dismiss(t.id);
+                  toast.success("Disaster deleted successfully");
+                }}
+                className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => toast.dismiss(t.id)}
+                className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ),
+        {
+          duration: 5000,
+          position: "top-center",
+        }
+      );
+    } catch (error) {
+      console.error("Error deleting disaster:", error.message);
+    }
+  };
 
   const handleEdit = (disaster) => {
     setEditingdisaster(disaster);
@@ -84,25 +142,16 @@ export default function ViewDisasters() {
   };
 
   useEffect(() => {
-    fetchHandler().then((data) => {
-      if (data) {
-        setDisasterData(data);
-      }
-    });
+    fetchDisaster();
   }, []);
 
-  const ListCard = ({ data, navigate }) => {
-    const handleDelete = async () => {
-      if (!window.confirm("Are you sure you want to delete this report?"))
-        return;
-      try {
-        await axios.delete(`http://localhost:5000/api/disaster/${data._id}`);
-        navigate("/DisasterDetails");
-      } catch (error) {
-        console.error("Error deleting disaster:", error);
-      }
-    };
+  const handleModalClose = () => {
+    console.log("performed");
+    setIsAddModalOpen(false);
+    setIsEditModalOpen(false);
+  };
 
+  const ListCard = ({ data, navigate }) => {
     return (
       <div className="bg-white rounded-xl shadow-sm border z-30 border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300 ">
         <div className="grid grid-cols-1 lg:grid-cols-3 h-auto">
@@ -168,7 +217,9 @@ export default function ViewDisasters() {
                 Update
               </button>
               <button
-                onClick={handleDelete}
+                onClick={() => {
+                  handleDelte(data._id);
+                }}
                 type="button"
                 className="inline-flex items-center justify-around px-4 py-1 border w-[100px] h-[30px] border-transparent rounded-md text-xs font-medium text-white bg-red-600 hover:bg-red-700"
               >
@@ -180,7 +231,7 @@ export default function ViewDisasters() {
 
           <div className="relative m-5 lg:rounded-l-xl overflow-hidden w-auto max-h-[250px]">
             <img
-              src={mapimage}
+              src={data.images}
               alt={`Map showing location of ${data.Location || "this disaster"}`}
               className="w-full h-full object-cover lg:rounded-l-xl"
               loading="lazy"
@@ -229,17 +280,6 @@ export default function ViewDisasters() {
   };
 
   const GridCard = ({ data, navigate }) => {
-    const handleDelete = async () => {
-      if (!window.confirm("Are you sure you want to delete this report?"))
-        return;
-      try {
-        await axios.delete(`http://localhost:5000/api/disaster/${data._id}`);
-        navigate("/DisasterDetails");
-      } catch (error) {
-        console.error("Error deleting disaster:", error);
-      }
-    };
-
     return (
       <div className="bg-white z-20 rounded-xl shadow-sm border border-gray-100 p-2 overflow-hidden hover:shadow-md transition-shadow duration-300">
         <div className="flex flex-col justify-between h-full ">
@@ -262,7 +302,7 @@ export default function ViewDisasters() {
 
             <div className="relative my-3 h-[180px] lg:rounded-xl overflow-hidden w-auto max-h-[250px]">
               <img
-                src={mapimage}
+                src={data.images}
                 alt={`Map showing location of ${data.Location || "this disaster"}`}
                 className="w-full object-cover rounded-xl"
                 loading="lazy"
@@ -338,7 +378,9 @@ export default function ViewDisasters() {
               Update
             </button>
             <button
-              onClick={handleDelete}
+              onClick={() => {
+                handleDelte(data._id);
+              }}
               type="button"
               className="inline-flex items-center justify-around px-4 py-1 border w-[100px] h-[30px] border-transparent rounded-md text-xs font-medium text-white bg-red-600 hover:bg-red-700"
             >
@@ -452,6 +494,7 @@ export default function ViewDisasters() {
           isOpen={isAddModalOpen}
           onClose={() => {
             setIsAddModalOpen(false);
+            handleModalClose();
           }}
           title="Create New Disaster"
         >
@@ -468,6 +511,8 @@ export default function ViewDisasters() {
               setIsAddModalOpen(false);
               toast.success("disaster created successfully");
             }}
+            onDisasterClosed={handleModalClose}
+            onDisasterSuccess={fetchDisaster}
           />
         </Modal>
 
@@ -492,6 +537,8 @@ export default function ViewDisasters() {
               setIsEditModalOpen(false);
               toast.success("disaster updated successfully");
             }}
+            onDisasterClosed={handleModalClose}
+            onDisasterSuccess={fetchDisaster}
           />
         </Modal>
       </div>

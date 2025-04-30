@@ -7,13 +7,20 @@ import { MapPin, AlertCircle, Loader2 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { FaImage } from "react-icons/fa";
 
+const formatDate = (dateString) => {
+  const dateObj = new Date(dateString);
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  return `${year}/${month}/${day}`;
+};
+
 const AddDisaster = ({
   initialData,
   isEdit,
-  onDisasterCreated,
+  onDisasterClosed,
   onDisasterSuccess,
 }) => {
-  const navigate = useNavigate();
   const [inputs, setInputs] = useState({
     type: "",
     severity: "",
@@ -86,7 +93,6 @@ const AddDisaster = ({
     const selectedDate = new Date(date);
     const maxPastDate = new Date();
     maxPastDate.setDate(currentDate.getDate() - 10);
-    console.log(newErrors);
 
     if (!type) newErrors.type = "Disaster type is required";
     if (!severity) newErrors.severity = "Severity is required";
@@ -100,12 +106,11 @@ const AddDisaster = ({
         "Date must be within the last 10 days and not in the future";
 
     setErrors(newErrors);
-    console.log(errors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, severity, value, files } = e.target;
     if (name === "images" && files.length > 0) {
       const reader = new FileReader();
       reader.onloadend = () => setInputs({ ...inputs, images: reader.result });
@@ -113,6 +118,16 @@ const AddDisaster = ({
     } else {
       setInputs((prev) => ({ ...prev, [name]: value }));
     }
+
+    setInputs((prev) => ({
+      ...prev,
+      [name === "disasterType" ? "type" : name]: value,
+    }));
+
+    setInputs((prev) => ({
+      ...prev,
+      [name === "severityLevel" ? "severity" : name]: value,
+    }));
 
     if (name === "contact") {
       const numericValue = value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
@@ -164,10 +179,8 @@ const AddDisaster = ({
         throw new Error(data.message || "Failed to create disaster");
       }
       toast.success("Disaster updated successfully");
-      onDisasterSuccess();
-      if (onDisasterCreated) {
-        onDisasterCreated();
-      }
+      onDisasterSuccess?.();
+      onDisasterClosed?.();
     } catch (error) {
       console.error("Error creating Disaster:", error.message);
     }
@@ -192,10 +205,8 @@ const AddDisaster = ({
         throw new Error(data.message || "Failed to update disaster");
       }
       toast.success("Disaster updated successfully");
-      onDisasterSuccess();
-      if (onDisasterCreated) {
-        onDisasterCreated();
-      }
+      onDisasterSuccess?.();
+      onDisasterClosed?.();
     } catch (error) {
       console.error("Error updating disaster:", error.message);
     }
