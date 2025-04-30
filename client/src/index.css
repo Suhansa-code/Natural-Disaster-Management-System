@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap");
+
+/* @font-face {
+  font-family: "Olivera Regular";
+  font-style: normal;
+  font-weight: normal;
+  src:
+    local("Olivera Regular"),
+    url("./assets/Fonts/Olivera-ZVxzB.woff") format("woff");
+} */
+
+body {
+  /* font-family: "Olivera Regular", sans-serif; */
+  /* horizontal overflow hidden */
+  overflow-x: hidden;
+}
+html {
+  scroll-behavior: smooth;
+}
