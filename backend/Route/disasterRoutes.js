@@ -15,5 +15,7 @@ router.get("/:id",DisasterController.getDisasterById);
 router.put("/:id",DisasterController.updateDisaster);
 router.delete("/:id",DisasterController.deleteDisaster);
 
+
+
 module.exports = router;
 
