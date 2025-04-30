@@ -7,7 +7,12 @@ import { MapPin, AlertCircle, Loader2 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { FaImage } from "react-icons/fa";
 
-const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
+const AddDisaster = ({
+  initialData,
+  isEdit,
+  onDisasterCreated,
+  onDisasterSuccess,
+}) => {
   const navigate = useNavigate();
   const [inputs, setInputs] = useState({
     type: "",
@@ -20,8 +25,8 @@ const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
   });
 
   const [errors, setErrors] = useState({
-    disasterType: "",
-    severityLevel: "",
+    type: "",
+    severity: "",
     numberOfPeopleAffected: "",
     contact: "", // Error for phone number validation
   });
@@ -81,6 +86,7 @@ const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
     const selectedDate = new Date(date);
     const maxPastDate = new Date();
     maxPastDate.setDate(currentDate.getDate() - 10);
+    console.log(newErrors);
 
     if (!type) newErrors.type = "Disaster type is required";
     if (!severity) newErrors.severity = "Severity is required";
@@ -94,6 +100,7 @@ const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
         "Date must be within the last 10 days and not in the future";
 
     setErrors(newErrors);
+    console.log(errors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -127,39 +134,71 @@ const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
     }
   };
 
-  const sendRequest = async () => {
-    setIsSubmitting(true);
-    try {
-      await axios.post("/api/disaster", {
-        ...inputs,
-        coordinates,
-        location,
-      });
-      toast.success("Disaster reported successfully!");
-      setInputs({
-        type: "",
-        severity: "",
-        contact: "",
-        peopleAffected: "",
-        date: "",
-        description: "",
-        images: "",
-      });
-      setErrors({});
-      setCoordinates(null);
-      setLocation("");
-      setShowMap(false);
-      navigate("/Disaster");
-    } catch (err) {
-      toast.error("Failed to submit. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    if (isEdit) {
+      await updatePost(); // Make sure the update happens only once.
+    } else {
+      await createPost();
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validateForm()) sendRequest();
+  const createPost = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/disaster", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(inputs),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create disaster");
+      }
+      toast.success("Disaster updated successfully");
+      onDisasterSuccess();
+      if (onDisasterCreated) {
+        onDisasterCreated();
+      }
+    } catch (error) {
+      console.error("Error creating Disaster:", error.message);
+    }
+  };
+
+  const updatePost = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/disaster/${inputs._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(inputs),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update disaster");
+      }
+      toast.success("Disaster updated successfully");
+      onDisasterSuccess();
+      if (onDisasterCreated) {
+        onDisasterCreated();
+      }
+    } catch (error) {
+      console.error("Error updating disaster:", error.message);
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
@@ -201,13 +240,18 @@ const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
 
   useEffect(() => {
     let index = 0;
+
+    if (initialData) {
+      setInputs(initialData);
+    }
+
     const interval = setInterval(() => {
       setTypingText((prev) => prev + quote[index]);
       index++;
       if (index === quote.length) clearInterval(interval);
     }, 50);
     return () => clearInterval(interval);
-  }, []);
+  }, [initialData]);
 
   return (
     <>
@@ -220,10 +264,10 @@ const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
             </label>
             <select
               name="disasterType"
-              value={inputs.disasterType}
+              value={inputs.type}
               onChange={handleChange}
               className={`w-full px-3 py-2  ring-0 outline-none text-sm rounded-lg border ${
-                errors.disasterType ? "border-red-500" : "border-gray-200"
+                errors.type ? "border-red-500" : "border-gray-200"
               } focus:border-green-500 transition-colors duration-200 bg-white/50 backdrop-blur-sm`}
             >
               <option value="" className="text-gray-500">
@@ -243,8 +287,8 @@ const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
                 </option>
               ))}
             </select>
-            {errors.disasterType && (
-              <p className="mt-1 text-xs text-red-600">{errors.disasterType}</p>
+            {errors.type && (
+              <p className="mt-1 text-xs text-red-600">{errors.type}</p>
             )}
           </div>
 
@@ -254,10 +298,10 @@ const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
             </label>
             <select
               name="severityLevel"
-              value={inputs.severityLevel}
+              value={inputs.severity}
               onChange={handleChange}
               className={`w-full px-3 py-2 text-sm  ring-0 outline-none rounded-lg border ${
-                errors.severityLevel ? "border-red-500" : "border-gray-200"
+                errors.severity ? "border-red-500" : "border-gray-200"
               } focus:border-green-500 transition-colors duration-200 bg-white/50 backdrop-blur-sm`}
             >
               <option value="">Select Severity</option>
@@ -267,10 +311,8 @@ const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
                 </option>
               ))}
             </select>
-            {errors.severityLevel && (
-              <p className="mt-1 text-xs text-red-600">
-                {errors.severityLevel}
-              </p>
+            {errors.severity && (
+              <p className="mt-1 text-xs text-red-600">{errors.severity}</p>
             )}
           </div>
         </div>
@@ -452,7 +494,7 @@ const AddDisaster = ({ onSubmit, initialData, isEdit }) => {
           type="submit"
           className="w-full py-2.5 px-4 bg-gradient-to-r from-green-600 to-green-500 text-white text-sm rounded-lg hover:from-green-700 hover:to-green-600 focus:outline-none transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-green-500/25"
         >
-          Submit Disaster Report
+          {isEdit ? "Update Disaster Report" : "Submit Disaster Report"}
         </button>
       </form>
       {/* Seperate Here */}
