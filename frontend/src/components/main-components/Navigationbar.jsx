@@ -19,6 +19,9 @@ const Navigationbar = () => {
                 <li className="text-white">
                     <Link to="/contact">Funding</Link>
                 </li>
+                <li className="text-white">
+                    <Link to="/floodpredictor">predict</Link>
+                </li>
             </ul>
         </nav>
     );

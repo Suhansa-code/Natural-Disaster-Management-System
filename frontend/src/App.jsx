@@ -6,7 +6,7 @@ import Footer from './components/main-components/footer';
 import UserLogin from './components/main-components/Userlog/userlogin';
 
 import About from "./components/main-components/About";
-
+import FloodPredictor from './components/predictor/floodprediction';
 
 
 
@@ -72,7 +72,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/about" element={<About/>} />
         <Route path="/footer" element={<Footer />} />
-
+        <Route path="/floodpredictor" element={<FloodPredictor />} />
   
 
 
