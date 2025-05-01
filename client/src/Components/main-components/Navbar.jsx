@@ -58,7 +58,7 @@ function Navbar() {
           },
           {
             name: "User Management",
-            link: "/users",
+            link: "/User-management",
             icon: <Users className="w-4 h-4" />,
           },
           {

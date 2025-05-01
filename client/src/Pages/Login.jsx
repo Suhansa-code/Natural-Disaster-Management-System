@@ -86,8 +86,8 @@ function Login() {
                     <Mail className="absolute z-10 left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                     <input
                       id="email"
-                      name="email"
-                      type="email"
+                      name="username"
+                      type="text"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
