@@ -4,13 +4,7 @@ import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import { MapPin, Loader2 } from "lucide-react";
 
-const PostForm = ({
-  onSubmit,
-  initialData,
-  isEdit,
-  onPostCreated,
-  onUpdateSuccess,
-}) => {
+const PostForm = ({ initialData, isEdit, onPostCreated, onUpdateSuccess }) => {
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [coordinates, setCoordinates] = useState({ lat: null, lon: null });
 
