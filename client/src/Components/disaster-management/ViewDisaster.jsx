@@ -101,7 +101,6 @@ export default function ViewDisasters() {
                     );
                   }
                   fetchDisaster();
-                  toast.dismiss(t.id);
                   toast.success("Disaster deleted successfully");
                 }}
                 className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
@@ -118,7 +117,7 @@ export default function ViewDisasters() {
           </div>
         ),
         {
-          duration: 5000,
+          duration: 3000,
           position: "top-center",
         }
       );

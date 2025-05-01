@@ -8,6 +8,11 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     contact: { type: String },
     role: { type: String, enum: ["user", "admin"], default: "user" },
+    status: { type: String, enum: ["Active", "Inactive"], default: "Active" },
+    last_active: { type: String },
+    Country: { type: String },
+    joinDate: { type: String },
+    profile_img: { type: String },
   },
   { timestamps: true }
 );
@@ -22,4 +27,4 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-export default mongoose.model("User", userSchema);
+export default mongoose.models.User || mongoose.model("User", userSchema);
