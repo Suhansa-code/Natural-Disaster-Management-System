@@ -146,11 +146,16 @@ export const handleLike = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    if (post.likes.includes(userId)) {
-      return res.status(400).json({ message: "You already liked this post" });
+    const alreadyLiked = post.likes.includes(userId);
+
+    if (alreadyLiked) {
+      // If already liked, remove the like
+      post.likes = post.likes.filter((id) => id.toString() !== userId);
+    } else {
+      // Otherwise, add the like
+      post.likes.push(userId);
     }
 
-    post.likes.push(userId);
     await post.save();
 
     return res.status(200).json(post);
@@ -172,20 +177,18 @@ export const handleComment = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    const comment = {
+    // Create new comment object
+    const newComment = {
       user: userId,
       text,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date(),
     };
 
-    post.comments.push(comment);
-
+    post.comments.push(newComment);
     await post.save();
 
-    return res.status(200).json({
-      message: "Comment added successfully",
-      post: post,
-    });
+    // Return updated post with comments
+    return res.status(200).json(post);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });

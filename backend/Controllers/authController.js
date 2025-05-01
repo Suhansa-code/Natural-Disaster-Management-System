@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import User from "../Models/User.js";
 import nodemailer from "nodemailer";
+import User from "../Models/user.js";
 
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
@@ -9,21 +9,58 @@ const generateToken = (user) => {
 };
 
 export const register = async (req, res) => {
-  const { name, email, password, role } = req.body;
-  const userExists = await User.findOne({ email });
-  if (userExists)
-    return res.status(400).json({ message: "User already exists" });
+  const {
+    name,
+    email,
+    password,
+    role,
+    status,
+    last_active,
+    Country,
+    joinDate,
+    profile_img,
+  } = req.body;
 
-  const user = await User.create({ name, email, password, role });
+  const userExists = await User.findOne({ email });
+  if (userExists) {
+    return res.status(400).json({ message: "User already exists" });
+  }
+
+  const user = await User.create({
+    name,
+    email,
+    password,
+    role,
+    status: status || "Active",
+    last_active: last_active || new Date().toISOString(),
+    Country: Country || "Unknown",
+    joinDate: new Date().toISOString(),
+    profile_img: profile_img || "",
+  });
+
   res.status(201).json({
     token: generateToken(user),
-    user: { id: user._id, name: user.name, email: user.email, role: user.role },
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      last_active: user.last_active,
+      Country: user.Country,
+      joinDate: user.joinDate,
+      profile_img: user.profile_img,
+    },
   });
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  const { email, password, name } = req.body;
+
+  const user = await User.findOne({
+    $or: [{ email }, { name: email }],
+  });
+
   if (!user || !(await user.matchPassword(password))) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
@@ -72,11 +109,16 @@ export const updateProfile = async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const { name, email, password } = req.body;
+    const { name, email, password, status, last_active, Country, profile_img } =
+      req.body;
 
     if (name) user.name = name;
     if (email) user.email = email;
     if (password) user.password = password;
+    if (status) user.status = status;
+    if (last_active) user.last_active = last_active;
+    if (Country) user.Country = Country;
+    if (profile_img) user.profile_img = profile_img;
 
     await user.save();
 
@@ -87,9 +129,63 @@ export const updateProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        status: user.status,
+        last_active: user.last_active,
+        Country: user.Country,
+        profile_img: user.profile_img,
       },
     });
   } catch (error) {
     res.status(500).json({ message: "Failed to update profile" });
+  }
+};
+
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    console.log(user._id);
+    await User.findByIdAndDelete(user._id);
+
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete user" });
+  }
+};
+
+export const activateUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.status = "Active";
+    await user.save();
+
+    res.json({ message: "User activated successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to activate user" });
+  }
+};
+
+export const deactivateUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.status = "Inactive";
+    await user.save();
+
+    res.json({ message: "User deactivated successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to deactivate user" });
   }
 };
