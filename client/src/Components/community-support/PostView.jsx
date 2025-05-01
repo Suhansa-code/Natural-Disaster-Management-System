@@ -152,19 +152,32 @@ const PostView = () => {
     );
   });
   
-  const handleLike = (postId) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post._id === postId) {
-          const likes = post.likes.includes(currentUserId)
-            ? post.likes.filter((id) => id !== currentUserId)
-            : [...post.likes, currentUserId];
-          return { ...post, likes };
-        }
-        return post;
-      })
-    );
+  const handleLike = async (postId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/posts/${postId}/like`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: currentUserId }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to toggle like");
+      }
+  
+      const updatedPost = await response.json();
+  
+      // Update local state with the updated post
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? updatedPost : post))
+      );
+    } catch (error) {
+      console.error("Error liking post:", error.message);
+    }
   };
+  
+  
 
   const toggleComments = (postId) => {
     setShowComments((prev) => ({
@@ -190,36 +203,37 @@ const PostView = () => {
           : post
       )
     );
-  
-    // Send to backend
     try {
-      await axios.post(`/api/posts/${postId}/comments`, {
-        user: newComment.user,
-        text: newComment.text,
+      const response = await fetch(`/api/posts/${postId}/comment`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: "CurrentUser", // Replace with actual logged-in user
+          text,
+        }),
       });
   
-      // Optional: You could fetch and sync comments again to get latest data
-      // OR assume success and leave as-is
-    } catch (error) {
-      console.error("Error saving comment to backend:", error);
+      if (!response.ok) {
+        throw new Error("Failed to add comment");
+      }
   
-      // Optional: Rollback UI if backend fails
+      const updatedPost = await response.json();
+      
+      // Optionally, update the state with the new comment data from the backend (if needed)
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post._id === postId
-            ? {
-                ...post,
-                comments: post.comments.filter((c) => c !== newComment),
-              }
-            : post
+          post._id === postId ? { ...post, comments: updatedPost.comments } : post
         )
       );
-  
-      // Optional: Show error toast
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      // Optionally handle the error (e.g., revert the optimistic update)
     }
   };
 
-  const PostCard = ({ post }) => (
+  const PostCard = ({ post, handleAddComment }) => (
     <div className=" rounded-xl shadow-md bg-white overflow-hidden">
       {/* Header */}
       <div className="p-4 flex items-center justify-between border-b border-white/20">
@@ -237,7 +251,7 @@ const PostView = () => {
         <div
           className={`px-3 py-1 rounded-full text-sm ${
             post.isUpcoming
-              ? "bg-primary-100 text-primary-800"
+            ? "bg-blue-100 text-blue-800"  
               : "bg-red-100/80 text-red-800"
           } ${post.isUpcoming ? "pulse-animation" : ""}`}
         >
@@ -300,55 +314,57 @@ const PostView = () => {
 
         {/* Comments */}
         {showComments[post._id] && (
-          <div className="mt-4 space-y-3">
-            {post.comments.map((comment, index) => (
-              <div
-                key={index}
-                className="flex space-x-2 text-left items-center bg-white rounded-[10px] shadow-sm  "
-              >
-                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200"></div>
-                <div className="flex-1 glass-card rounded-2xl p-3">
-                  <p className="font-medium text-sm text-gray-900">
-                    {comment.user}
-                  </p>
-                  <p className="text-sm text-gray-600">{comment.text}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {formatDate(comment.createdAt)}
-                  </p>
-                </div>
-              </div>
-            ))}
-            <div className="flex relative items-center space-x-2">
-              <input
-                type="text"
-                className="w-full px-4 py-2 rounded-full border-[1px] text-[14px] border-green-200 focus:border-green-400 h-[38px] focus:outline-none focus:ring-0 focus:ring-green-200"
-                placeholder="Add a comment..."
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && e.target.value) {
-                    handleAddComment(post._id, e.target.value);
-                    e.target.value = "";
-                  }
-                }}
-                id={`comment-input-${post._id}`} // unique id for targeting
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const input = document.getElementById(
-                    `comment-input-${post._id}`
-                  );
-                  if (input && input.value.trim()) {
-                    handleAddComment(post._id, input.value);
-                    input.value = "";
-                  }
-                }}
-                className="p-2 absolute right-[6px] rounded-full bg-green-600 hover:bg-green-700 transition text-white"
-              >
-                <Send className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        )}
+  <div className="mt-4 space-y-3">
+    {post.comments.map((comment, index) => (
+      <div
+        key={index}
+        className="flex space-x-2 text-left items-center bg-white rounded-[10px] shadow-sm"
+      >
+        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200"></div>
+        <div className="flex-1 glass-card rounded-2xl p-3">
+          <p className="font-medium text-sm text-gray-900">
+            {comment.user}
+          </p>
+          <p className="text-sm text-gray-600">{comment.text}</p>
+          <p className="text-xs text-gray-400 mt-1">
+            {formatDate(comment.createdAt)}
+          </p>
+        </div>
+      </div>
+    ))}
+
+    {/* Comment input section */}
+    <div className="flex relative items-center space-x-2 mt-3">
+      <input
+        type="text"
+        className="w-full px-4 py-2 rounded-full border-[1px] text-[14px] border-green-200 focus:border-green-400 h-[38px] focus:outline-none focus:ring-0 focus:ring-green-200"
+        placeholder="Add a comment..."
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && e.target.value) {
+            handleAddComment(post._id, e.target.value);
+            e.target.value = "";
+          }
+        }}
+        id={`comment-input-${post._id}`} // Unique ID for targeting
+      />
+      <button
+        type="button"
+        onClick={() => {
+          const input = document.getElementById(`comment-input-${post._id}`);
+          if (input && input.value.trim()) {
+           
+            handleAddComment(post._id, input.value);
+            input.value = ""; // Clear input after adding the comment
+          }
+        }}
+        className="p-2 absolute right-2 rounded-full bg-green-600 hover:bg-green-700 transition text-white"
+      >
+        <Send className="w-3 h-3" />
+      </button>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );

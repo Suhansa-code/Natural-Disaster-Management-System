@@ -24,40 +24,6 @@ const PostForm = ({
     isUpcoming: false,
   });
 
-  const handleGetLocation = () => {
-    if (navigator.geolocation) {
-      setLoadingLocation(true); // Start loading
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          setCoordinates({ lat: latitude, lon: longitude });
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-            );
-            const data = await response.json();
-            const address = data.display_name;
-            setFormData((prev) => ({
-              ...prev,
-              location: address,
-            }));
-          } catch (error) {
-            console.error("Error fetching location:", error);
-            toast.error("Unable to fetch location details. Try again.");
-          } finally {
-            setLoadingLocation(false); // Stop loading
-          }
-        },
-        (error) => {
-          console.error("Geolocation Error:", error);
-          toast.error("Location access denied. Enable GPS and try again.");
-          setLoadingLocation(false); // Stop loading
-        }
-      );
-    } else {
-      toast.error("Geolocation is not supported by this browser.");
-    }
-  };
 
   const createPost = async () => {
     try {
@@ -112,7 +78,12 @@ const PostForm = ({
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        disasterDate: initialData.disasterDate
+          ? new Date(initialData.disasterDate).toISOString().split("T")[0]
+          : "",
+      });
     }
   }, [initialData]);
 
@@ -171,11 +142,25 @@ const PostForm = ({
   };
 
   const handleInputChange = (e) => {
-    const { name, value, type } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? e.target.checked : value,
-    }));
+    const { name, value, type, checked } = e.target;
+  
+    setFormData((prev) => {
+      let updatedValue = type === "checkbox" ? checked : value;
+  
+      // Handle the logic for disasterDate to automatically check "Mark as upcoming" for future dates
+      if (name === "disasterDate") {
+        const futureDate = new Date(value) > new Date();
+        updatedValue = value;
+        
+        return {
+          ...prev,
+          [name]: updatedValue,
+          isUpcoming: futureDate, // Automatically check if the date is in the future
+        };
+      }
+  
+      return { ...prev, [name]: updatedValue };
+    });
   };
 
   return (
@@ -196,6 +181,7 @@ const PostForm = ({
             onChange={handleInputChange}
             className="w-full px-3 py-2 text-sm ring-0 outline-none rounded-lg border border-gray-200 focus:border-green-500 transition-colors duration-200 bg-white/50 backdrop-blur-sm"
             placeholder="Enter post title"
+            required
           />
         </div>
 
@@ -254,45 +240,36 @@ const PostForm = ({
             <div className="flex gap-2">
               <input
                 type="text"
-                name="Location"
+                id="location"
+                name="location"
                 value={formData.location}
                 onChange={handleInputChange}
                 className="flex-1 px-3 py-2  ring-0 outline-none text-sm rounded-lg border border-gray-200 focus:border-green-500 transition-colors duration-200 bg-white/50 backdrop-blur-sm"
                 placeholder="Enter location"
+                required
               />
-              <button
-                type="button"
-                onClick={handleGetLocation}
-                disabled={loadingLocation}
-                className="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none transition-colors duration-200 disabled:opacity-50 shadow-lg hover:shadow-green-500/25"
-              >
-                {loadingLocation ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <MapPin className="h-4 w-4" />
-                )}
-              </button>
             </div>
           </div>
         </div>
 
-        {formData.category === "Disaster" && (
+        {formData.category && (
           <div>
-            <label
-              htmlFor="disasterDate"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Disaster Date
-            </label>
-            <input
-              type="date"
-              id="disasterDate"
-              name="disasterDate"
-              value={formData.disasterDate}
-              onChange={handleInputChange}
-              className={`w-full px-3 py-2 text-sm rounded-lg border  ring-0 outline-none  focus:border-green-500 transition-colors duration-200 bg-white/50 backdrop-blur-sm`}
-            />
-          </div>
+      <label
+      htmlFor="disasterDate"
+      className="block text-sm font-medium text-gray-700"
+    >
+      Disaster Date
+    </label>
+    <input
+      type="date"
+      id="disasterDate"
+      name="disasterDate"
+      value={formData.disasterDate}
+      onChange={handleInputChange}
+      className={`w-full px-3 py-2 text-sm rounded-lg border  ring-0 outline-none  focus:border-green-500 transition-colors duration-200 bg-white/50 backdrop-blur-sm`}
+      required
+    />
+  </div>
         )}
 
         <div>
