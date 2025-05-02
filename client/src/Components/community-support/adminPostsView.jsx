@@ -16,6 +16,8 @@ import { useDropzone } from "react-dropzone";
 import { format } from "date-fns";
 import { Toaster, toast } from "react-hot-toast";
 import Modal from "../main-components/Model";
+import { useModal } from "../main-components/ModalContext";
+
 import PostForm from "./PostForm";
 
 const adminPostView = () => {
@@ -31,6 +33,7 @@ const adminPostView = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [shouldFocusSearch, setShouldFocusSearch] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { isModalOpen, setIsModalOpen } = useModal();
 
   // Form states
   const [title, setTitle] = useState("");
@@ -93,11 +96,13 @@ const adminPostView = () => {
     setImageUrl(post.imageUrl);
     setIsUpcoming(post.isUpcoming);
     setIsEditModalOpen(true);
+    setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
     setIsAddModalOpen(false);
     setIsEditModalOpen(false);
+    setIsModalOpen(false);
   };
 
   const handleDelete = async (postId) => {
@@ -329,14 +334,14 @@ const adminPostView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 mt-12">
+    <div className="min-h-screen bg-gray-50 ">
       <Toaster />
       <header className="bg-gray-50 shadow-sm sticky top-0 z-40">
         <div className=" mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center text-left">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Community Managenment
+                Community Management
               </h1>
               <p className="text-sm text-gray-500">Admin Dashboard</p>
             </div>
@@ -374,6 +379,7 @@ const adminPostView = () => {
                 onClick={() => {
                   resetForm();
                   setIsAddModalOpen(true);
+                  setIsModalOpen(true);
                 }}
                 className=" hover:border-green-300 active:bg-green-100 z-10 w-[145px] h-[38px] mt-[1px] border border-gray-200 bg-white p-1 justify-center text-[#626262] hover:text-green-600 px-2 py-3 rounded-md transition-all duration-300 text-[14px] font-medium !rounded-button whitespace-nowrap cursor-pointer shadow-sm flex items-center"
               >
@@ -400,6 +406,7 @@ const adminPostView = () => {
           setIsAddModalOpen(false);
           resetForm();
           handleModalClose();
+          setIsModalOpen(false);
         }}
         title="Create New Post"
       >
@@ -414,6 +421,7 @@ const adminPostView = () => {
               },
             ]);
             setIsAddModalOpen(false);
+            setIsModalOpen(true);
             resetForm();
           }}
           onPostCreated={handleModalClose}
@@ -425,6 +433,7 @@ const adminPostView = () => {
         isOpen={isEditModalOpen}
         onClose={() => {
           setIsEditModalOpen(false);
+          setIsModalOpen(true);
           resetForm();
         }}
         title="Edit Post"
@@ -439,6 +448,7 @@ const adminPostView = () => {
               )
             );
             setIsEditModalOpen(false);
+            setIsModalOpen(true);
             resetForm();
           }}
           onPostCreated={handleModalClose}

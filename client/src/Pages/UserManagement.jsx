@@ -72,6 +72,7 @@ export const UserManagement = () => {
   const [usersByRole, setusersByRole] = useState([]);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const PAGE_SIZE = 5;
 
@@ -219,6 +220,38 @@ export const UserManagement = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const handleUpdateUser = async () => {
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/api/auth/users/${selectedUser._id}`,
+        {
+          name: selectedUser.name,
+          email: selectedUser.email,
+          role: selectedUser.role,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      // Update the user list with the updated user details
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === selectedUser._id ? { ...user, ...response.data } : user
+        )
+      );
+
+      toast.success("User updated successfully");
+      fetchUsers();
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error("Failed to update user");
+      console.error("Failed to update user:", error);
+    }
+  };
 
   // Filtering functionality
   const filteredUsers = Users.filter((user) => {
@@ -871,74 +904,100 @@ export const UserManagement = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-4 mb-6">
-                    <div className="flex items-start">
-                      <Building className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
-                      <div>
-                        <p className="text-xs text-gray-500">Department</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {selectedUser.department}
-                        </p>
+                  <div className="space-y-4 mb-6 border-t border-gray-200 pt-8">
+                    <div className="flex flex-row gap-4 items-center justify-between">
+                      <div className="flex flex-col gap-8 items-start w-full">
+                        <div className="flex items-start">
+                          <MapPinHouse className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
+
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">
+                              Country
+                            </p>
+
+                            <p className="text-sm font-medium text-gray-900">
+                              {selectedUser?.Country}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start">
+                          <Calendar className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
+
+                          <div>
+                            <p className="text-xs text-gray-500">Join Date</p>
+
+                            <p className="text-sm font-medium text-gray-900">
+                              {formatDate(selectedUser?.joinDate)}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-start">
-                      <Calendar className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
-                      <div>
-                        <p className="text-xs text-gray-500">Join Date</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {formatDate(selectedUser.joinDate)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <Clock className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
-                      <div>
-                        <p className="text-xs text-gray-500">Last Active</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {formatDate(selectedUser.lastActive)}
-                        </p>
+                      <div className="flex flex-col gap-8 items-start w-full">
+                        <div className="flex items-start">
+                          <Clock className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
+
+                          <div>
+                            <p className="text-xs text-gray-500">Last Active</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {formatDate(selectedUser?.last_active)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <UserRoundPen className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
+
+                          <div>
+                            <p className="text-xs text-gray-500">System Role</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {selectedUser?.role}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-
-                  <div className="space-y-3 pt-4 border-t border-gray-200">
+                  <div className="flex flex-row gap-2 items-center justify-around space-y-4 pt-4 border-t border-gray-200">
                     <Button
                       leftIcon={<Edit className="h-4 w-4" />}
                       variant="outline"
-                      className="w-full"
+                      className="w-full text-[12px] h-full border mt-[15px] border-gray-300 hover:bg-gray-50"
+                      onClick={() => {
+                        setSelectedUser(selectedUser);
+                        setIsEditModalOpen(true);
+                      }}
                     >
-                      Edit User
+                      Edit
                     </Button>
-                    {selectedUser.status === "Active" ? (
+                    {selectedUser?.status === "Active" ? (
                       <Button
                         leftIcon={<UserX className="h-4 w-4" />}
                         variant="outline"
-                        className="w-full text-amber-600 border-amber-200 hover:bg-amber-50"
+                        className="w-full text-[12px]  h-full text-amber-600 border border-amber-200 hover:bg-amber-50"
                         onClick={() =>
                           toggleUserStatus(selectedUser._id, "deactivate")
                         }
                       >
-                        Deactivate User
+                        Deactivate
                       </Button>
                     ) : (
                       <Button
                         leftIcon={<Check className="h-4 w-4" />}
                         variant="outline"
-                        className="w-full text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                        className="w-full text-[12px]  h-full text-emerald-600 border border-emerald-200 hover:bg-emerald-50"
                         onClick={() =>
                           toggleUserStatus(selectedUser._id, "activate")
                         }
                       >
-                        Activate User
+                        Activate
                       </Button>
                     )}
                     <Button
                       leftIcon={<Trash2 className="h-4 w-4" />}
                       variant="outline"
-                      className="w-full text-red-600 border-red-200 hover:bg-red-50"
+                      className="w-full h-full text-red-600 border border-red-200 hover:bg-red-50"
                       onClick={() => deleteUser(selectedUser._id)}
                     >
-                      Delete User
+                      Delete
                     </Button>
                   </div>
                 </CardContent>
@@ -964,7 +1023,7 @@ export const UserManagement = () => {
                           key={countryData.country}
                           className="flex items-center"
                         >
-                          <span className="text-sm text-gray-700 w-24 truncate">
+                          <span className="text-sm text-right mr-1 text-gray-700 w-24 truncate">
                             {countryData.country}
                           </span>
                           <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden ml-2">
@@ -1031,125 +1090,116 @@ export const UserManagement = () => {
         </div>
       </motion.div>
       <Modal
-        isOpen={selectedUser !== null}
-        onClose={() => setSelectedUser(null)}
-        title="User Details"
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setSelectedUser(null);
+          setIsEditModalOpen(false);
+        }}
+        title="Edit User Details"
         size="lg"
         classNames={{ modal: "rounded-lg" }}
       >
         <CardContent className="px-6 py-4">
-          <div className="flex flex-row justify-between items-center mb-2">
-            <div className="flex items-center mb-4">
-              <Avatar
-                src={selectedUser?.profile_img}
-                name={selectedUser?.name}
-                size="lg"
-              />
-              <div className="ml-4">
-                <h3 className="text-xl font-bold text-gray-900">
-                  {selectedUser?.name}
-                </h3>
-                <p className="text-sm text-gray-500">{selectedUser?.email}</p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleUpdateUser();
+            }}
+          >
+            <div className="space-y-4">
+              {/* Name Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <Input
+                  value={selectedUser?.name || ""}
+                  onChange={(e) =>
+                    setSelectedUser((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter name"
+                  className="mt-1 outline-none"
+                />
+              </div>
+
+              {/* Email Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <Input
+                  value={selectedUser?.email || ""}
+                  onChange={(e) =>
+                    setSelectedUser((prev) => ({
+                      ...prev,
+                      email: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter email"
+                  className="mt-1 outline-none"
+                />
+              </div>
+
+              {/* Country Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <Input
+                  value={selectedUser?.Country || ""}
+                  onChange={(e) =>
+                    setSelectedUser((prev) => ({
+                      ...prev,
+                      email: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter Country"
+                  className="mt-1 outline-none"
+                />
+              </div>
+
+              {/* Role Field */}
+              <div>
+                <label className="block text-sm font-medium  text-gray-700">
+                  Role
+                </label>
+                <select
+                  value={selectedUser?.role || ""}
+                  onChange={(e) =>
+                    setSelectedUser((prev) => ({
+                      ...prev,
+                      role: e.target.value,
+                    }))
+                  }
+                  className="mt-1 block w-full border pl-1 h-[40px] outline-none border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
+                </select>
               </div>
             </div>
-            <motion.span
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className={cn(
-                "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                "bg-gray-100 text-gray-800",
-                getRoleColor(selectedUser?.status)
-              )}
-            >
-              {selectedUser?.status}
-            </motion.span>
-          </div>
-          <div className="space-y-4 mb-6 border-t border-gray-200 pt-8">
-            <div className="flex flex-row gap-4 items-center justify-between">
-              <div className="flex flex-col gap-8 items-start w-full">
-                <div className="flex items-start">
-                  <MapPinHouse className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
 
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Country</p>
-
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedUser?.Country}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <Calendar className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
-
-                  <div>
-                    <p className="text-xs text-gray-500">Join Date</p>
-
-                    <p className="text-sm font-medium text-gray-900">
-                      {formatDate(selectedUser?.joinDate)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col gap-8 items-start w-full">
-                <div className="flex items-start">
-                  <Clock className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
-
-                  <div>
-                    <p className="text-xs text-gray-500">Last Active</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {formatDate(selectedUser?.last_active)}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <UserRoundPen className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
-
-                  <div>
-                    <p className="text-xs text-gray-500">System Role</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedUser?.role}
-                    </p>
-                  </div>
-                </div>
-              </div>
+            {/* Submit Button */}
+            <div className="mt-6 flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="mr-2"
+                onClick={() => {
+                  setSelectedUser(null);
+                  setIsEditModalOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary">
+                Save Changes
+              </Button>
             </div>
-          </div>
-          <div className="flex flex-row gap-4 items-center justify-around space-y-3 pt-4 border-t border-gray-200">
-            <Button
-              leftIcon={<Edit className="h-4 w-4" />}
-              variant="outline"
-              className="w-full text-[12px] h-full border mt-[10px] border-gray-200 hover:bg-gray-50"
-            >
-              Edit User
-            </Button>
-            {selectedUser?.status === "Active" ? (
-              <Button
-                leftIcon={<UserX className="h-4 w-4" />}
-                variant="outline"
-                className="w-full text-[12px]  h-[40px] text-amber-600 border border-amber-200 hover:bg-amber-50"
-                onClick={() => toggleUserStatus(selectedUser._id, "deactivate")}
-              >
-                Deactivate User
-              </Button>
-            ) : (
-              <Button
-                leftIcon={<Check className="h-4 w-4" />}
-                variant="outline"
-                className="w-full text-[12px]  h-full text-emerald-600 border border-emerald-200 hover:bg-emerald-50"
-                onClick={() => toggleUserStatus(selectedUser._id, "activate")}
-              >
-                Activate User
-              </Button>
-            )}
-            <Button
-              leftIcon={<Trash2 className="h-4 w-4" />}
-              variant="outline"
-              className="w-full h-[40px] text-red-600 border border-red-200 hover:bg-red-50"
-              onClick={() => deleteUser(selectedUser._id)}
-            >
-              Delete User
-            </Button>
-          </div>
+          </form>
         </CardContent>
       </Modal>
     </>

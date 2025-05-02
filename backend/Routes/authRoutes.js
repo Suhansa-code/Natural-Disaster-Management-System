@@ -8,6 +8,7 @@ import {
   getUsers,
   activateUser,
   deleteUser,
+  updateUser,
 } from "../Controllers/authController.js";
 import { protect } from "../Middleware/authMiddleware.js";
 
@@ -21,5 +22,5 @@ router.get("/users", protect, getUsers);
 router.put("/users/:id/activate", protect, activateUser);
 router.put("/users/:id/deactivate", protect, deactivateUser);
 router.delete("/users/:id", protect, deleteUser);
-
+router.put("/users/:id", protect, updateUser);
 export default router;

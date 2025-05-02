@@ -1,9 +1,7 @@
-import { text } from "body-parser";
-
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   darkMode: "class", // Enables dark mode using a CSS class
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"], // Paths to your files
   theme: {
     extend: {
       fontFamily: {
@@ -25,6 +23,8 @@ export default {
           dark: "#0ea5e9", // Dark mode (Darker Sky Blue - sky-600)
         },
         text: {
+          primary: "#2d2d2d",
+          secondary: "#5E5E5E",
           light: "#1e293b", // Light mode text (Tailwind slate-800)
           dark: "#f8fafc", // Dark mode text (Tailwind slate-50)
         },
@@ -34,17 +34,38 @@ export default {
           border2: "#bbbbbb",
           border3: "#dddddd",
         },
-        text: {
-          primary: "#2d2d2d",
-          secondary: "#5E5E5E",
-        },
-        textfiels: {
+        textfields: {
           field1: "#eaeaea",
           field2: "#eaeaea",
           field3: "#bbbbbb",
         },
       },
+      animation: {
+        aurora: "aurora 60s linear infinite",
+      },
+      keyframes: {
+        aurora: {
+          from: {
+            backgroundPosition: "50% 50%, 50% 50%",
+          },
+          to: {
+            backgroundPosition: "350% 50%, 350% 50%",
+          },
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        ".scrollbar-hide": {
+          "-ms-overflow-style": "none", // IE and Edge
+          "scrollbar-width": "none", // Firefox
+        },
+        ".scrollbar-hide::-webkit-scrollbar": {
+          display: "none", // Chrome, Safari, and Edge
+        },
+      });
+    },
+  ],
 };
