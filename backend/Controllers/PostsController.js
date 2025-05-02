@@ -1,4 +1,5 @@
 import Posts from "../Models/postsModel.js";
+import sendEmail from "../Utils/mailer.js";
 
 export const getAllPosts = async (req, res) => {
   let posts;
@@ -44,6 +45,19 @@ export const insertPosts = async (req, res, next) => {
       isUpcoming,
     });
     await createdPosts.save();
+    await sendEmail({
+      subject: `🚨 New Disaster Alert: ${title}`,
+      text: `Category: ${category}\nLocation: ${location}\nDate: ${disasterDate}\nDescription: ${description}`,
+      html: `
+        <h2>🚨 New Disaster Alert</h2>
+        <p><strong>Title:</strong> ${title}</p>
+        <p><strong>Category:</strong> ${category}</p>
+        <p><strong>Location:</strong> ${location}</p>
+        <p><strong>Date:</strong> ${disasterDate}</p>
+        <p><strong>Description:</strong> ${description}</p>
+        ${imageUrl ? `<p><strong>Image:</strong><img src="${imageUrl}" alt="Disaster Image" width="200px" /></p>` : ''}
+      `,
+    });
   } catch (error) {
     console.log(error);
   }
