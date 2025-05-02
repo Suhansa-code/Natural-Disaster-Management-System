@@ -18,10 +18,12 @@ import Profile from "./Pages/Profile";
 import Home from "./components/main-components/homecomp/home";
 import UserLogin from "./components/main-components/Userlog/userlogin";
 import About from "./components/main-components/About";
+import FloodPredictor from "./Components/main-components/prediction-model/floodPredictor";
 import { UserManagement } from "./Pages/UserManagement";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./Components/main-components/ProtectedRoute";
 import NotFound from "./Pages/NotFound";
+
 
 //Disaster management imports
 import AddDisaster from "./components/disaster-management/addDisaster";
@@ -70,6 +72,8 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/User-management" element={<UserManagement />} />
+              <Route path="/flood-predictor" element={<FloodPredictor />} />
+
 
               {/* Disaster management */}
               <Route

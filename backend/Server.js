@@ -16,6 +16,8 @@ import EmailRoutes from "./Routes/EmailRoutes.js";
 import Datasetrouter from "./Routes/datasetRoutes.js";
 import DisasterRouters from "./Routes/disasterRoutes.js";
 import PostRouters from "./Routes/postsRoutes.js";
+import floodRoutes from "./Routes/floodRoutes.js";
+
 
 dotenv.config();
 const app = express();
@@ -70,3 +72,6 @@ cloudinary.config({
   api_key: "412359435453984",
   api_secret: process.env.CLOUDINARY_API_KEY,
 });
+
+ // Flood prediction API
+app.use("/api/flood", floodRoutes); // Flood prediction API

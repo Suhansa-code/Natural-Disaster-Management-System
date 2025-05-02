@@ -45,7 +45,7 @@ const adminPostView = () => {
   const [isUpcoming, setIsUpcoming] = useState(false);
   const [dateError, setDateError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
+  
   const fetchPosts = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/posts", {
@@ -57,6 +57,9 @@ const adminPostView = () => {
       if (!response.ok) {
         throw new Error(data.message || "Failed to fetch posts");
       }
+      const sortedData = (data || []).sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
 
       setPosts(data || []);
     } catch (error) {
@@ -72,20 +75,22 @@ const adminPostView = () => {
       searchInputRef.current?.focus();
       setShouldFocusSearch(false);
     }
-
+  
     fetchPosts();
   }, [shouldFocusSearch]);
-
-  const filteredPosts = posts.filter((post) => {
-    const searchTerm = searchQuery.toLowerCase();
-    return (
-      post.title.toLowerCase().includes(searchTerm) ||
-      post.description.toLowerCase().includes(searchTerm) ||
-      post.category.toLowerCase().includes(searchTerm) ||
-      post.location.toLowerCase().includes(searchTerm)
-    );
-  });
-
+  
+  const filteredPosts = posts
+    .filter((post) => {
+      const searchTerm = searchQuery.toLowerCase();
+      return (
+        post.title.toLowerCase().includes(searchTerm) ||
+        post.description.toLowerCase().includes(searchTerm) ||
+        post.category.toLowerCase().includes(searchTerm) ||
+        post.location.toLowerCase().includes(searchTerm)
+      );
+    })
+   
+    
   const handleEdit = (post) => {
     setEditingPost(post);
     setTitle(post.title);
@@ -106,36 +111,52 @@ const adminPostView = () => {
   };
 
   const handleDelete = async (postId) => {
-    toast(
-      (t) => (
-        <div className="flex items-center gap-4 ">
-          <p>Are you sure you want to delete this post?</p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                setPosts(posts.filter((post) => post._id !== postId));
+    toast((t) => (
+      <div className="flex items-center gap-4">
+        <p>Are you sure you want to delete this post?</p>
+        <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              try {
+                // Send DELETE request to backend
+                const response = await fetch(`http://localhost:5000/api/posts/${postId}`, {
+                  method: "DELETE",
+                });
+  
+                const data = await response.json();
+  
+                if (!response.ok) {
+                  throw new Error(data.message || "Failed to delete post");
+                }
+  
+                // Remove from local state
+                setPosts((prev) => prev.filter((post) => post._id !== postId));
                 toast.dismiss(t.id);
                 toast.success("Post deleted successfully");
-              }}
-              className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-            >
-              Delete
-            </button>
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
+              } catch (error) {
+                toast.dismiss(t.id);
+                toast.error("Error deleting post: " + error.message);
+              }
+            }}
+            className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
         </div>
-      ),
-      {
-        duration: 5000,
-        position: "top-center",
-      }
-    );
+      </div>
+    ), {
+      duration: 5000,
+      position: "top-center",
+    });
   };
+  
+  
 
   const resetForm = () => {
     setTitle("");
