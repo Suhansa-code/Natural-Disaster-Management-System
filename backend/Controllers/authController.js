@@ -55,10 +55,13 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password } = req.body;
 
   const user = await User.findOne({
-    $or: [{ email }, { name: email }],
+    $or: [
+      { email: { $regex: new RegExp(`^${email}$`, "i") } }, // Case-insensitive email match
+      { name: { $regex: new RegExp(`^${email}$`, "i") } }, // Case-insensitive name match
+    ],
   });
 
   if (!user || !(await user.matchPassword(password))) {
@@ -187,5 +190,40 @@ export const deactivateUser = async (req, res) => {
     res.json({ message: "User deactivated successfully", user });
   } catch (error) {
     res.status(500).json({ message: "Failed to deactivate user" });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const { name, email, role, status, Country, profile_img } = req.body;
+
+    // Update user fields if provided in the request body
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (role) user.role = role;
+    if (status) user.status = status;
+    if (Country) user.Country = Country;
+    if (profile_img) user.profile_img = profile_img;
+
+    await user.save();
+
+    res.json({
+      message: "User updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        Country: user.Country,
+        profile_img: user.profile_img,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ message: "Failed to update user" });
   }
 };

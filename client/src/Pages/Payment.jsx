@@ -6,6 +6,7 @@ import CheckoutForm from "../Components/disaster-funding/Checkout";
 import toast from "react-hot-toast";
 import earth_img from "../assets/Earth.webp";
 import BankSelector from "../Components/disaster-funding/Bank-Selector";
+import { AuroraBackground } from "../Components/ui/aurora-background";
 import {
   AlertCircle,
   Globe,
@@ -16,6 +17,7 @@ import {
   Heart,
   MapPin,
   Calendar,
+  X,
 } from "lucide-react";
 
 const stripePromise = loadStripe(
@@ -23,10 +25,6 @@ const stripePromise = loadStripe(
 );
 
 function Payment() {
-  useEffect(() => {
-    document.title = "Guardian Earth";
-  }, []);
-
   const fileInputRef = useRef(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [fullName, setFullName] = useState("");
@@ -40,6 +38,8 @@ function Payment() {
   const [branchError, setbranchError] = useState("");
   const [Amounterror, setAmountError] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [disasters, setDisasters] = useState([]);
+  const [selectedDisaster, setSelectedDisaster] = useState(null);
 
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files).filter((file) =>
@@ -47,6 +47,18 @@ function Payment() {
     );
     setSelectedFiles(files);
   };
+
+  useEffect(() => {
+    document.title = "Guardian Earth";
+
+    const fetchDisasters = async () => {
+      const response = await fetch("http://localhost:5000/api/disaster");
+      const data = await response.json();
+      setDisasters(data.disasters || []);
+    };
+
+    fetchDisasters();
+  }, []);
 
   const handleSubmit = async () => {
     if (!fullName || !depositBranch || !bankName || !remark || !amount) {
@@ -219,148 +231,298 @@ function Payment() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Side - Disaster Details */}
-          <div className="space-y-6">
-            <div className="relative group">
-              {/* Main Card with Glassmorphism Effect */}
-              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-900/90 to-emerald-700/90 backdrop-blur-xl shadow-2xl">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,transparent,black)]" />
-
-                {/* Content */}
-                <div className="relative p-8">
-                  {/* Header with Glow Effect */}
-                  <div className="flex items-center space-x-4 mb-8">
-                    <div className="p-3 rounded-full bg-emerald-500/20 backdrop-blur-sm">
-                      <AlertCircle className="w-6 h-6 text-emerald-300" />
-                    </div>
-                    <h2 className="text-3xl font-bold text-white tracking-tight">
-                      Hurricane Katrina Relief
-                    </h2>
-                  </div>
-
-                  {/* Info Grid */}
-                  <div className="grid grid-cols-2 gap-6 mb-8">
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2 text-emerald-300">
-                        <Calendar className="w-4 h-4" />
-                        <span className="text-xs uppercase tracking-wider">
-                          Date
-                        </span>
-                      </div>
-                      <p className="text-white font-medium">Aug 23–31, 2005</p>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2 text-emerald-300">
-                        <MapPin className="w-4 h-4" />
-                        <span className="text-xs uppercase tracking-wider">
-                          Location
-                        </span>
-                      </div>
-                      <p className="text-white font-medium">Louisiana, USA</p>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2 text-emerald-300">
-                        <Users className="w-4 h-4" />
-                        <span className="text-xs uppercase tracking-wider">
-                          Impact
-                        </span>
-                      </div>
-                      <p className="text-white font-medium">1,833 affected</p>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2 text-emerald-300">
-                        <DollarSign className="w-4 h-4" />
-                        <span className="text-xs uppercase tracking-wider">
-                          Damages
-                        </span>
-                      </div>
-                      <p className="text-white font-medium">$125 billion</p>
-                    </div>
-                  </div>
-
-                  {/* Overview Section */}
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2 text-emerald-300">
-                      <Globe className="w-4 h-4" />
-                      <span className="text-xs uppercase tracking-wider">
-                        Situation Overview
-                      </span>
-                    </div>
-                    <p className="text-emerald-50/90 text-sm leading-relaxed">
-                      One of the deadliest hurricanes in U.S. history. The storm
-                      caused catastrophic damage, particularly in New Orleans
-                      where the levee system failed.
+    <div className="min-h-screen ">
+      <div className=" mx-auto px-4 sm:px-6 lg:px-4 py-4">
+        <div className="flex gap-8 ">
+          <AuroraBackground />
+          {selectedDisaster ? (
+            // Disaster Details View
+            <div className="space-y-4 w-[500px] pt-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {selectedDisaster.disasterType}
+                </h2>
+                <button
+                  onClick={() => setSelectedDisaster(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="space-y-4">
+                <div className="h-[150px] lg:rounded-l-xl overflow-hidden">
+                  <img
+                    src={selectedDisaster.images}
+                    alt={`Map showing location of ${selectedDisaster.Location || "this disaster"}`}
+                    className="w-full h-full object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-emerald-600 mt-1" />
+                  <div className="flex flex-col w-full text-left text-emerald-600">
+                    <p className="text-[12px] font-semibold text-gray-700">
+                      Disaster Date :
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      {new Date(selectedDisaster.date).toLocaleDateString()}
                     </p>
                   </div>
+                </div>
 
-                  {/* Progress Bar */}
-                  <div className="mt-8 space-y-2">
-                    <div className="flex justify-between text-xs text-emerald-300">
-                      <span>Relief Fund Progress</span>
-                      <span>75%</span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-emerald-900/50 overflow-hidden">
-                      <div className="h-full w-3/4 bg-emerald-400 rounded-full" />
-                    </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-emerald-600 mt-1" />
+                  <div className="flex flex-col w-full text-left text-emerald-600">
+                    <p className="text-[12px] font-semibold text-gray-700">
+                      Location :
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      {selectedDisaster.Location}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-emerald-600 mt-1" />
+                  <div className="flex flex-col w-full text-left text-emerald-600">
+                    <p className="text-[12px] font-semibold text-gray-700">
+                      People affected :
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      {selectedDisaster.numberOfPeopleAffected.toLocaleString()}{" "}
+                      affected
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-emerald-600 mt-1" />
+                  <div className="flex flex-col w-full text-left text-emerald-600">
+                    <p className="text-[12px] font-semibold text-gray-700">
+                      Severity Level :
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      {selectedDisaster.severityLevel}
+                    </p>
                   </div>
                 </div>
               </div>
+              <div className="pt-4 px-1">
+                <p className="text-sm text-gray-700 font-semibold text-left ">
+                  Description
+                </p>
+                <p className="text-sm text-gray-700 text-left">
+                  {selectedDisaster.description}
+                </p>
+              </div>
+            </div>
+          ) : (
+            // Disaster List View
+            <div className="space-y-4 w-[500px] pt-4 h-[calc(100vh-20px)] overflow-y-auto scrollbar-hide">
+              <div className="text-left">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Disaster List
+                </h2>
+                <p className="text-[14px] font-normal text-gray-400">
+                  Select a disaster to view details and make a donation.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {disasters.map((disaster) => (
+                  <div
+                    key={disaster._id}
+                    className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer bg-white"
+                    onClick={() => setSelectedDisaster(disaster)}
+                  >
+                    {/* Disaster Header */}
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {disaster.disasterType}
+                      </h3>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          disaster.severityLevel === "High"
+                            ? "bg-red-100 text-red-600"
+                            : disaster.severityLevel === "Medium"
+                              ? "bg-yellow-100 text-yellow-600"
+                              : "bg-green-100 text-green-600"
+                        }`}
+                      >
+                        {disaster.severityLevel}
+                      </span>
+                    </div>
 
-              {/* Floating Stats Cards */}
-              <div className="grid grid-cols-3 gap-4 mt-6">
-                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                  <Users className="w-5 h-5 text-emerald-300 mb-2" />
-                  <div className="text-2xl font-bold text-white">2M+</div>
-                  <p className="text-xs text-emerald-200">People Helped</p>
-                </div>
+                    {/* Disaster Image */}
+                    <div className="relative mt-3 h-[150px] rounded-lg overflow-hidden">
+                      <img
+                        src={disaster.images}
+                        alt={`Image of ${disaster.disasterType}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-0 left-0 bg-black/30 text-white text-xs px-2 py-1 rounded-br-lg">
+                        {new Date(disaster.date).toLocaleDateString()}
+                      </div>
+                    </div>
 
-                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                  <Globe className="w-5 h-5 text-emerald-300 mb-2" />
-                  <div className="text-2xl font-bold text-white">50+</div>
-                  <p className="text-xs text-emerald-200">Countries</p>
-                </div>
+                    {/* Disaster Details */}
+                    <div className="mt-3 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-emerald-600" />
+                        <p className="text-[13px] w-[300px]  text-gray-600 text-left">
+                          {disaster.Location}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-emerald-600" />
+                        <p className="text-[13px] text-gray-600">
+                          {disaster.numberOfPeopleAffected.toLocaleString()}{" "}
+                          affected
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Left Side - Disaster Details */}
+          {/* <div className="space-y-6 w-[40%]">
+            <div className="relative group">
+              <div className="relative flex flex-row items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-900/90 to-emerald-700/90 backdrop-blur-xl shadow-2xl">
+                <AuroraBackground />
 
-                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                  <DollarSign className="w-5 h-5 text-emerald-300 mb-2" />
-                  <div className="text-2xl font-bold text-white">$125M</div>
-                  <p className="text-xs text-emerald-200">Distributed</p>
+                <div className="flex items-center justify-center min-h-screen">
+                  <div className="relative px-8 py-4 pb-10">
+                    <div className="flex flex-col items-center space-x-4 mb-8">
+                      <div className="p-3 rounded-full bg-emerald-500/20 backdrop-blur-sm">
+                        <AlertCircle className="w-10 h-10 text-emerald-300" />
+                      </div>
+                      <h2 className="text-3xl text-center font-semibold text-white tracking-tight">
+                        Hurricane Katrina Relief
+                      </h2>
+                    </div>
+
+                    <div></div>
+
+                    <div className="grid grid-cols-2 gap-6 mb-8">
+                      <div className="space-y-1 flex flex-row items-center ">
+                        <Calendar className="w-4 h-4 text-emerald-300" />
+
+                        <div className="flex  flex-col items-center space-x-2 text-emerald-300">
+                          <span className="text-xs uppercase tracking-wider text-left w-full ml-4">
+                            Date
+                          </span>
+                          <p className="text-white text-[13px] font-normal w-full">
+                            Aug 23–31, 2005
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 flex flex-row items-center ">
+                        <MapPin className="w-4 h-4 text-emerald-300" />
+
+                        <div className="flex  flex-col items-center space-x-2 text-emerald-300">
+                          <span className="text-xs uppercase tracking-wider text-left w-full ml-4">
+                            Location
+                          </span>
+                          <p className="text-white text-[13px] font-normal w-full">
+                            Louisiana, USA
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 flex flex-row items-center ">
+                        <Users className="w-4 h-4 text-emerald-300" />
+
+                        <div className="flex  flex-col items-center space-x-2 text-emerald-300">
+                          <span className="text-xs uppercase tracking-wider text-left w-full ml-4">
+                            Impact
+                          </span>
+                          <p className="text-white text-[13px] font-normal w-full">
+                            1,833 affected
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 flex flex-row items-center ">
+                        <DollarSign className="w-4 h-4 text-emerald-300" />
+
+                        <div className="flex  flex-col items-center space-x-2 text-emerald-300">
+                          <span className="text-xs uppercase tracking-wider text-left w-full ml-4">
+                            Damages
+                          </span>
+                          <p className="text-white text-[13px] font-normal w-full">
+                            $125 billion
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2 text-emerald-300">
+                        <Globe className="w-4 h-4" />
+                        <span className="text-xs uppercase tracking-wider">
+                          Situation Overview
+                        </span>
+                      </div>
+                      <p className="text-emerald-50/90 text-left text-sm leading-relaxed">
+                        One of the deadliest hurricanes in U.S. history. The
+                        storm caused catastrophic damage, particularly in New
+                        Orleans where the levee system failed.
+                      </p>
+                    </div>
+
+                    <div className="mt-8 space-y-2">
+                      <div className="flex justify-between text-xs text-emerald-300">
+                        <span>Relief Fund Progress</span>
+                        <span>75%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-emerald-900/50 overflow-hidden">
+                        <div className="h-full w-3/4 bg-emerald-400 rounded-full" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Right Side - Payment Form */}
-          <div>
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-              <div className="flex justify-center mb-6">
-                <div className="bg-emerald-50 p-1 rounded-lg inline-flex">
-                  <button
-                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                      paymentMethod === "card"
-                        ? "bg-emerald-600 text-white"
-                        : "text-emerald-600 hover:bg-emerald-100"
-                    }`}
-                    onClick={() => setPaymentMethod("card")}
-                  >
-                    Card Payment
-                  </button>
-                  <button
-                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                      paymentMethod === "bank"
-                        ? "bg-emerald-600 text-white"
-                        : "text-emerald-600 hover:bg-emerald-100"
-                    }`}
-                    onClick={() => setPaymentMethod("bank")}
-                  >
-                    Bank Transfer
-                  </button>
+          <div className="w-full border-l border-200 ">
+            <div className="bg-white rounded-xl py-3   px-6 mb-6">
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col text-left">
+                  <h2 className="text-[25px] font-semibold text-gray-900">
+                    Make a Donation
+                  </h2>
+                  <p className="text-[14px] font-normal text-gray-400">
+                    Your donation will help us provide emergency relief to
+                    families affected by disasters
+                  </p>
+                </div>
+                <div className="flex justify-center h-full items-center ">
+                  <div className="bg-emerald-50 p-1 gap-1 rounded-lg inline-flex">
+                    <button
+                      className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                        paymentMethod === "card"
+                          ? "bg-emerald-600 text-white"
+                          : "text-emerald-600 hover:bg-emerald-100"
+                      }`}
+                      onClick={() => setPaymentMethod("card")}
+                    >
+                      Card Payment
+                    </button>
+                    <button
+                      className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+                        paymentMethod === "bank"
+                          ? "bg-emerald-600 text-white"
+                          : "text-emerald-600 hover:bg-emerald-100"
+                      }`}
+                      onClick={() => setPaymentMethod("bank")}
+                    >
+                      Bank Transfer
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -369,9 +531,9 @@ function Payment() {
                   <CheckoutForm />
                 </Elements>
               ) : (
-                <div className="space-y-4 max-w-md mx-auto">
+                <div className="space-y-4 max-w-md  w-full ml-0 mr-auto mt-5">
                   <div className="mb-4 text-left">
-                    <label className="block text-sm ml-3 font-medium text-gray-700 mb-1">
+                    <label className="block text-[12px] ml-3 font-semibold text-gray-700 mb-1">
                       Full Name
                     </label>
                     <input
@@ -379,7 +541,7 @@ function Payment() {
                       value={fullName}
                       onChange={handleNameChange}
                       placeholder="John Doe"
-                      className="w-full p-3 h-10 rounded-[4px] border text-[14px] focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
+                      className="w-full p-3 h-9 rounded-lg border text-[14px] focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
                     />
                     {/* Error Message */}
                     {nameError && (
@@ -390,7 +552,7 @@ function Payment() {
                   </div>
 
                   <div className="mb-4 text-left">
-                    <label className="block text-sm ml-3 font-medium text-gray-700 mb-1">
+                    <label className="block text-[12px] ml-3 font-semibold text-gray-700 mb-1">
                       Select Bank
                     </label>
                     <BankSelector
@@ -400,7 +562,7 @@ function Payment() {
                   </div>
 
                   <div className="mb-4 text-left">
-                    <label className="block text-sm ml-3 font-medium text-gray-700 mb-1">
+                    <label className="block text-[12px] ml-3 font-semibold text-gray-700 mb-1">
                       Amount (USD)
                     </label>
                     <input
@@ -408,7 +570,7 @@ function Payment() {
                       value={amount}
                       onChange={handleAmountChange}
                       onKeyDown={handleKeyDown}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-0"
+                      className="w-full px-3 py-2 text-sm border border-gray-200 outline-none rounded-lg focus:border-emerald-500 focus:ring-0"
                       placeholder="Minimum $100"
                       min="100"
                     />
@@ -418,7 +580,7 @@ function Payment() {
                   </div>
 
                   <div className="flex flex-col w-full  h-full items-center space-y-3 mt-2   ">
-                    <label className="block text-sm font-medium ml-3 text-left  w-full text-gray-700 ">
+                    <label className="block text-[12px] text-left w-full ml-3 font-semibold text-gray-700 mt-2">
                       Upload Payment Slip
                     </label>
                     {selectedFiles.length === 0 ? (

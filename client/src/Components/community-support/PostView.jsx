@@ -394,14 +394,19 @@ className={`px-3 py-1 rounded-full text-sm ${
   );
 
   return (
-    <div className="min-h-screen bg-texture">
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-texture px-4 sm:px-6 lg:px-6 pt-0 ">
+      <div className=" mx-auto ">
         {/* Fixed Header */}
-        <div className="sticky top-0 z-50 bg-texture py-4 mb-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Disaster Updates
-            </h1>
+        <div className="fixed top-0 left-0 w-full z-50 bg-texture bg-white py-4">
+          <div className="flex justify-between items-center px-4">
+            <div className="flex flex-col justify-start text-left">
+              <h1 className="text-2xl font-semibold text-gray-700">
+                Disaster Community
+              </h1>
+              <p className="text-sm text-gray-400 mt-0">
+                Stay informed with the Community updates
+              </p>
+            </div>
             <div className="flex items-center space-x-2 glassmorphism rounded-lg p-1">
               <button
                 onClick={() => setViewMode("list")}
@@ -422,15 +427,17 @@ className={`px-3 py-1 rounded-full text-sm ${
                 }`}
               >
                 <LayoutGrid className="h-5 w-5" />
-              </button>{" "}
+
+              </button>
               
+
             </div>
           </div>
         </div>
 
-        <div className="flex gap-8 ">
+        <div className="flex gap-8   ">
           {/* Left Sidebar - Sticky */}
-          <div className="hidden lg:block lg:fixed top-4 w-64 flex-shrink-0 h-screen">
+          <div className="hidden lg:block lg:fixed top-4 flex-shrink-0 h-screen w-[300px]">
             <div className="sticky top-28 space-y-6">
               <SidebarMenu items={SIDE_MENU_ITEMS} title="Quick Access" />
               <DisasterTypes items={DISASTER_TYPES} />
@@ -439,7 +446,7 @@ className={`px-3 py-1 rounded-full text-sm ${
 
           {/* Main Content */}
           <div
-            className={`flex-1 ml-[260px] mr-[260px]  ${viewMode === "list" ? "space-y-8" : "grid grid-cols-1 md:grid-cols-2 gap-8"}`}
+            className={`flex-1 pt-[80px] ml-[260px] mr-[260px]  ${viewMode === "list" ? "space-y-8" : "grid grid-cols-1 md:grid-cols-2 gap-8"}`}
           >
             {posts.map((post) => (
               <PostCard key={post._id} post={post} />
@@ -448,7 +455,7 @@ className={`px-3 py-1 rounded-full text-sm ${
 
           {/* Right Sidebar - Sticky, Hidden in Grid View */}
           <div
-            className={`hidden ${viewMode === "list" ? "xl:block fixed right-0 " : ""} w-80 flex-shrink-0`}
+            className={`hidden pt-[90px] ${viewMode === "list" ? "xl:block fixed right-0 " : ""} w-80 flex-shrink-0`}
           >
             <div className="sticky top-28 space-y-6">
               <div className="glass-card rounded-xl p-4">

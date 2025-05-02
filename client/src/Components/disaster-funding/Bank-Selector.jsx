@@ -22,7 +22,7 @@ const BankSelector = ({ bankName, setBankName }) => {
       options={bankOptions}
       placeholder="Select a Bank"
       isSearchable
-      className="w-full rounded-[4px] border-[1px] opacity-90 text-[14px] focus:ring-0 text-left focus:border-1 outline-none focus:border-primary-light text-text-primary dark:text-text-dark"
+      className="w-full rounded-[12px]   border-[1px] opacity-90 text-[14px] focus:ring-0 text-left focus:border-1 outline-none focus:border-primary-light text-text-primary dark:text-text-dark"
       styles={{
         control: (base, state) => ({
           ...base,
@@ -33,6 +33,8 @@ const BankSelector = ({ bankName, setBankName }) => {
           ring: "none",
           borderColor: state.isFocused ? "#1BB66E" : "#2d2d2d",
           boxShadow: state.isFocused ? "0 0 0px 1px #1BB66E" : "none",
+          borderRadius: "12px",
+          height: "36px",
           // Green when focused
         }),
         singleValue: (base) => ({
