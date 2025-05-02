@@ -257,7 +257,31 @@ const PostView = () => {
         >
           {post.isUpcoming ? "Upcoming" : "Ongoing"}
         </div>
+        <div className="p-4">
+        <div
+className={`px-3 py-1 rounded-full text-sm ${
+  post.category === "Floods"
+    ? "bg-blue-100 text-blue-800"
+    : post.category === "Earthquakes"
+    ? "bg-yellow-100 text-yellow-800"
+    : post.category === "Landslides"
+    ? "bg-green-100 text-green-800"
+    : post.category === "Tornadoes"
+    ? "bg-orange-100 text-orange-800"
+    : post.category === "Wildfires"
+    ? "bg-red-100 text-red-800"
+    : post.category === "Hurricanes"
+    ? "bg-indigo-100 text-indigo-800"
+    : post.category === "Tsunami"
+    ? "bg-cyan-100 text-cyan-800"
+    : "bg-gray-100 text-gray-800"
+}`}
+>
+          {post.category}
+        </div>
       </div>
+      </div>
+      
 
       {/* Image */}
       <div className="relative group px-5">
@@ -403,13 +427,10 @@ const PostView = () => {
                 }`}
               >
                 <LayoutGrid className="h-5 w-5" />
+
               </button>
-              <button
-                onClick={() => navigate(`/addposts`)}
-                className="hover:border-green-300 active:bg-green-100 z-10 w-[145px] h-[38px] mt-[1px] border border-gray-200 bg-white p-1 justify-center text-[#626262] hover:text-green-600 px-2 py-3 rounded-md transition-all duration-300 text-[14px] font-medium !rounded-button whitespace-nowrap cursor-pointer shadow-sm flex items-center"
-              >
-                <Plus className="mr-2" /> Add Post
-              </button>
+              
+
             </div>
           </div>
         </div>
