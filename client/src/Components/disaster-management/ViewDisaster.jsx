@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import mapimage from "../../assets/map.png";
+import { useModal } from "../main-components/ModalContext";
+
 import Modal from "../main-components/Model";
 import {
   FileText,
@@ -55,6 +57,7 @@ export default function ViewDisasters() {
   const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { isModalOpen, setIsModalOpen } = useModal();
 
   const fetchDisaster = async () => {
     try {
@@ -138,6 +141,7 @@ export default function ViewDisasters() {
     setDateError("");
     setSuccessMessage("");
     setIsEditModalOpen(true);
+    setIsModalOpen(true);
   };
 
   useEffect(() => {
@@ -148,6 +152,7 @@ export default function ViewDisasters() {
     console.log("performed");
     setIsAddModalOpen(false);
     setIsEditModalOpen(false);
+    setIsModalOpen(false);
   };
 
   const ListCard = ({ data, navigate }) => {
@@ -285,7 +290,7 @@ export default function ViewDisasters() {
           <div className="flex flex-col">
             <div className="border-b border-gray-100 pb-3 text-left">
               {/* Header Details */}
-              <div className="flex w-full  items-center justify-between ">
+              <div className="flex w-full   items-center justify-between ">
                 <h2 className="text-lg font-semibold text-gray-900">
                   {data.disasterType}
                 </h2>
@@ -307,7 +312,7 @@ export default function ViewDisasters() {
                 loading="lazy"
               />
 
-              <div className="absolute top-0 right-0 backdrop-blur-md bg-white/30 border h-[50px] flex items-center border-white/20 shadow-lg rounded-xl p-3 m-2">
+              <div className="absolute  top-0 right-0 backdrop-blur-md bg-white/30 border h-[50px] flex items-center border-white/20 shadow-lg rounded-xl p-3 m-2">
                 <div className="flex items-center gap-2 justify-center">
                   <Users className="w-4  text-emerald-900" />
                   <div className="flex flex-col text-left">
@@ -331,41 +336,62 @@ export default function ViewDisasters() {
               </div>
             </div>
 
-            <div className="flex flex-col justify-between items-center gap-5 w-full">
+            <div className="flex border-t border-gray-200 flex-col justify-between items-center gap-5 w-full">
               <div className="py-3 space-y-4 text-left w-full">
                 <div className="flex flex-row justify-between">
-                  <div className="flex items-start gap-2 ">
+                  <div className="flex items-center gap-2 ">
                     <Calendar className="w-4 h-4 text-emerald-600 " />
-                    <p className="text-sm text-gray-600 text-wrap text-left ">
-                      {formatDate(data.date)}
-                    </p>
+                    <div>
+                      <span className="text-[12px] font-bold text-gray-600">
+                        Date :
+                      </span>
+                      <p className="text-sm text-gray-600 text-wrap text-left ">
+                        {formatDate(data.date)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-start gap-2 ">
+                  <div className="flex items-center gap-2 ">
                     <Phone className="w-5 h-5 text-emerald-600" />
-                    <p className="text-sm text-gray-600 text-wrap text-left  ">
-                      {data.contact}
+                    <div>
+                      <span className="text-[12px] font-bold text-gray-600">
+                        Mobile :
+                      </span>
+
+                      <p className="text-sm text-gray-600 text-wrap text-left  ">
+                        {data.contact}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 ">
+                  <FileText className="w-4 h-4 text-emerald-600" />
+                  <div>
+                    <span className="text-[12px] font-bold text-gray-600">
+                      Description :
+                    </span>
+                    <p className="text-sm text-gray-600 text-wrap text-left w-full ">
+                      {data.description}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2 ">
-                  <FileText className="w-4 h-4 text-emerald-600" />
-                  <p className="text-sm text-gray-600 text-wrap text-left w-full ">
-                    {data.description}
-                  </p>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 text-emerald-600 mt-1 shrink-0" />
-                  <p className="text-sm text-gray-600 text-left">
-                    {data.Location}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-emerald-600 mt-1  shrink-0" />
+                  <div>
+                    <span className="text-[12px] font-bold text-gray-600">
+                      Location :
+                    </span>
+                    <p className="text-sm text-gray-600 text-left">
+                      {data.Location}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="pt-3 flex justify-center gap-2">
+          <div className="pt-3 pb-1 flex justify-end border-t gap-2">
             <button
               onClick={() => {
                 handleEdit(data);
@@ -395,7 +421,7 @@ export default function ViewDisasters() {
   return (
     <>
       <div>
-        <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-6 pt-20">
+        <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-6 pt-4">
           {/* Grid Background */}
           <div className="absolute inset-0 z-0 opacity-10">
             <div
@@ -454,6 +480,7 @@ export default function ViewDisasters() {
               <button
                 onClick={() => {
                   setIsAddModalOpen(true);
+                  setIsModalOpen(true);
                 }}
                 className=" hover:border-green-300 active:bg-green-100 z-10 w-[145px] h-[38px] mt-[1px] border border-gray-200 bg-white p-1 justify-center text-[#626262] hover:text-green-600 px-2 py-3 rounded-md transition-all duration-300 text-[14px] font-medium !rounded-button whitespace-nowrap cursor-pointer shadow-sm flex items-center"
               >
@@ -494,6 +521,7 @@ export default function ViewDisasters() {
           onClose={() => {
             setIsAddModalOpen(false);
             handleModalClose();
+            setIsModalOpen(false);
           }}
           title="Create New Disaster"
         >
@@ -508,6 +536,7 @@ export default function ViewDisasters() {
                 },
               ]);
               setIsAddModalOpen(false);
+              setIsModalOpen(false);
               toast.success("disaster created successfully");
             }}
             onDisasterClosed={handleModalClose}
@@ -519,6 +548,7 @@ export default function ViewDisasters() {
           isOpen={isEditModalOpen}
           onClose={() => {
             setIsEditModalOpen(false);
+            setIsModalOpen(false);
           }}
           title="Edit disaster"
         >
@@ -534,6 +564,7 @@ export default function ViewDisasters() {
                 )
               );
               setIsEditModalOpen(false);
+              setIsModalOpen(false);
               toast.success("disaster updated successfully");
             }}
             onDisasterClosed={handleModalClose}
