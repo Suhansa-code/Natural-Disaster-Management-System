@@ -4,15 +4,40 @@ import axios from "axios";
 
 const Dashboard_grid = ({ recodes, loading, fetchdata }) => {
   const handleDelete = async (id) => {
-    console.log(id);
-    try {
-      await axios.delete(`http://localhost:5000/api/Dashboard/${id}`);
-      fetchdata();
-      toast.success("Recode Delete Successfully !");
-    } catch (error) {
-      console.error("Error deleting record:", error);
-      alert("Failed to delete record.");
-    }
+    toast(
+      (t) => (
+        <div className="flex items-center gap-4">
+          <span>Are you sure you want to delete this record?</span>
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                try {
+                  await axios.delete(
+                    `http://localhost:5000/api/Dashboard/${id}`
+                  );
+                  fetchdata();
+                  toast.dismiss(t.id);
+                  toast.success("Recode deleted successfully!");
+                } catch (error) {
+                  toast.dismiss(t.id);
+                  toast.error("Failed to delete record.");
+                }
+              }}
+              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 5000, position: "top-center" }
+    );
   };
 
   return (
