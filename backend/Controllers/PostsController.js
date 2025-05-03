@@ -30,12 +30,11 @@ export const insertPosts = async (req, res, next) => {
     disasterDate,
     imageUrl,
     isUpcoming,
+    createdBy,
   } = req.body;
 
-  let createdPosts;
-
   try {
-    createdPosts = new Posts({
+    const createdPosts = new Posts({
       title,
       description,
       category,
@@ -43,8 +42,15 @@ export const insertPosts = async (req, res, next) => {
       disasterDate,
       imageUrl,
       isUpcoming,
+      status: "pending",
+      createdBy,
     });
+
     await createdPosts.save();
+    return res
+      .status(200)
+      .send({ message: "Post created and pending approval" });
+
     await sendEmail({
       subject: `🚨 New Disaster Alert: ${title}`,
       text: `Category: ${category}\nLocation: ${location}\nDate: ${disasterDate}\nDescription: ${description}`,
@@ -55,10 +61,15 @@ export const insertPosts = async (req, res, next) => {
         <p><strong>Location:</strong> ${location}</p>
         <p><strong>Date:</strong> ${disasterDate}</p>
         <p><strong>Description:</strong> ${description}</p>
-        ${imageUrl ? `<p><strong>Image:</strong><img src="${imageUrl}" alt="Disaster Image" width="200px" /></p>` : ''}
+        ${
+          imageUrl
+            ? `<p><strong>Image:</strong><img src="${imageUrl}" alt="Disaster Image" width="200px" /></p>`
+            : ""
+        }
       `,
     });
   } catch (error) {
+    return res.status(500).send({ message: "Failed to create post" });
     console.log(error);
   }
 
@@ -82,7 +93,7 @@ export const getPosts = async (req, res, next) => {
   }
 
   //if posts not available
-  if (!posts) {
+  if (!disaster) {
     return res.status(404).send({ message: "Posts not found" });
   }
 
@@ -206,5 +217,57 @@ export const handleComment = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Approve post
+export const approvePost = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await Posts.findByIdAndUpdate(
+      id,
+      { status: "approved" },
+      { new: true }
+    );
+    if (!post) return res.status(404).send({ message: "Post not found" });
+    res.json(post);
+  } catch (error) {
+    res.status(500).send({ message: "Failed to approve post" });
+  }
+};
+
+export const rejectPost = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await Posts.findByIdAndUpdate(
+      id,
+      { status: "rejected" },
+      { new: true }
+    );
+    if (!post) return res.status(404).send({ message: "Post not found" });
+    res.json(post);
+  } catch (error) {
+    res.status(500).send({ message: "Failed to reject post" });
+  }
+};
+
+// Get posts by status
+export const getPostsByStatus = async (req, res) => {
+  const { status } = req.query;
+  try {
+    if (!status) {
+      return res
+        .status(400)
+        .send({ message: "Status query parameter is required" });
+    }
+    const validStatuses = ["pending", "approved"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).send({ message: "Invalid status value" });
+    }
+
+    const posts = await Posts.find({ status });
+    res.json(posts);
+  } catch (error) {
+    res.status(500).send({ message: "Failed to fetch posts" });
   }
 };

@@ -8,7 +8,7 @@ const sendEmail = async (
   bankname,
   branch,
   currency,
-  pdfPath
+  slipImage
 ) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -44,7 +44,7 @@ const sendEmail = async (
     attachments: [
       {
         filename: "payment_slip.pdf",
-        path: pdfPath, // This should be a valid image path
+        path: slipImage,
       },
     ],
   };
