@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema(
   {
-    //user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Reference to the user making the payment
-    user: { type: String, required: true }, // Reference to the user making the payment
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Reference to the user making the payment
+    name: { type: String, required: true }, // Reference to the user making the payment
 
     paymentMethod: {
       type: String,

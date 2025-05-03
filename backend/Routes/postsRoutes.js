@@ -7,6 +7,9 @@ import {
   deletePosts,
   handleLike,
   handleComment,
+  approvePost,
+  getPostsByStatus,
+  rejectPost,
 } from "../Controllers/PostsController.js";
 
 const postsrouter = express.Router();
@@ -18,7 +21,9 @@ postsrouter.put("/:id", updatePosts);
 postsrouter.delete("/:id", deletePosts);
 postsrouter.post("/:postId/like", handleLike);
 postsrouter.post("/posts/:postId/comment", handleComment);
-
+postsrouter.get("/status", getPostsByStatus);
+postsrouter.put("/:id/approve", approvePost);
+postsrouter.put("/:id/reject", rejectPost);
 postsrouter.get("/posts/:postId/comments", async (req, res) => {
   const { postId } = req.params;
   try {

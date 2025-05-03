@@ -5,6 +5,7 @@ import {
   getPaymentList,
   updatePayment,
   deletePayment,
+  getUserPayments,
 } from "../Controllers/PaymentController.js";
 
 const router = express.Router();
@@ -23,5 +24,8 @@ router.put("/:id", updatePayment);
 
 //Delete Payment Recode
 router.delete("/delete/:id", deletePayment);
+
+// Route to fetch payments for a specific user
+router.get("/user/:userId", getUserPayments);
 
 export default router;

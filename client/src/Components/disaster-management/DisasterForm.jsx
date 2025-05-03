@@ -422,7 +422,11 @@ const AddDisaster = ({
             <input
               type="date"
               name="date"
-              value={inputs.date}
+              value={
+                inputs.date
+                  ? new Date(inputs.date).toISOString().split("T")[0]
+                  : ""
+              }
               onChange={handleChange}
               className={`w-full px-3 py-2 text-sm rounded-lg border  ring-0 outline-none ${
                 errors.date ? "border-red-500" : "border-gray-200"
@@ -509,7 +513,6 @@ const AddDisaster = ({
           {isEdit ? "Update Disaster Report" : "Submit Disaster Report"}
         </button>
       </form>
-     
     </>
   );
 };

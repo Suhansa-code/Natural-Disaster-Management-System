@@ -5,14 +5,15 @@ import {
   CardExpiryElement,
   CardCvcElement,
 } from "@stripe/react-stripe-js";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Stripe_img from "../../assets/Icons/Stripe.png";
 import Amex_img from "../../assets/Icons/American Express.png";
 import toast from "react-hot-toast";
 import jsPDF from "jspdf";
 import { SiTicktick } from "react-icons/si";
+import { AuthContext } from "../../context/AuthContext";
 
-function CheckoutForm() {
+function CheckoutForm({ refreshPayments, selectedDisaster }) {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,15 @@ function CheckoutForm() {
   const [error, setError] = useState("");
   const [nameError, setNameError] = useState("");
   const [Amounterror, setAmountError] = useState("");
+
+  const clearFields = () => {
+    setName("");
+    setEmail("");
+    setAmount("");
+    setError("");
+    setNameError("");
+    setAmountError("");
+  };
 
   // Email Validation Function
   const validateEmail = (email) => {
@@ -93,11 +103,30 @@ function CheckoutForm() {
     }
   };
 
+  const { isAuthenticated, user } = useContext(AuthContext);
+  const user_ID = user?.id;
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     setError("");
 
+    if (!isAuthenticated) {
+      toast.error("You must be logged in to make a payment.");
+      setLoading(false);
+      return;
+    }
+    if (!selectedDisaster) {
+      toast.error("Please select a disaster to donate to.");
+      setLoading(false);
+      return;
+    }
+
+    if (!name || !email) {
+      toast.error("Please fill in all fields.");
+      setLoading(false);
+      return;
+    }
     if (!stripe || !elements) return;
     if (!name || !email) {
       setError("Please fill in all fields.");
@@ -115,6 +144,7 @@ function CheckoutForm() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        user_ID,
         username: name,
         email: email,
         currency: "USD",
@@ -136,6 +166,9 @@ function CheckoutForm() {
     } else {
       console.log("Payment Method Created:", paymentMethod);
       toast.success("Payment Successful!");
+      clearFields();
+
+      refreshPayments(); // Refresh payments after successful payment
 
       // Generate PDF
       const doc = new jsPDF();
@@ -177,16 +210,16 @@ function CheckoutForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-lg mx-auto px-6  dark:bg-slate-800 transition-all"
+      className=" mx-auto space-y-4  ml-0 pr-6 mr-auto mt-5  w-full dark:bg-slate-800 transition-all "
     >
       {/* Name Input */}
       <div className="mb-4 text-left">
-        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1 text-left pl-3 ">
+        <label className="block text-[12px] ml-3 font-semibold text-gray-700 mb-1">
           Name
         </label>
         <input
           type="text"
-          className="w-full p-3 h-10 rounded-[4px] text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
+          className="w-full p-3 h-9 rounded-lg text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
           placeholder="John Doe"
           value={name}
           onChange={handleNameChange}
@@ -199,13 +232,13 @@ function CheckoutForm() {
 
       {/* Email Input */}
       <div className="mb-4 text-left">
-        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1 text-left pl-3 ">
+        <label className="block text-[12px] ml-3 font-semibold text-gray-700 mb-1">
           Email
         </label>
         <div className="relative flex items-center">
           <input
             type="email"
-            className="w-full p-3 h-10 rounded-[4px] text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
+            className="w-full p-3 h-9 rounded-lg text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
             placeholder="johndoe@example.com"
             value={email}
             onChange={handleEmailChange}
@@ -224,12 +257,12 @@ function CheckoutForm() {
 
       {/* Amount Input */}
       <div className="mb-4 text-left">
-        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-1 text-left pl-3 ">
+        <label className="block text-[12px] ml-3 font-semibold text-gray-700 mb-1">
           Amount
         </label>
         <input
           type="Number"
-          className="w-full p-3 h-10 rounded-[4px] text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
+          className="w-full p-3 h-9 rounded-lg text-[14px] border focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light bg-gray-0 dark:bg-gray-800 text-text-primary dark:text-text-dark"
           placeholder="$ 5000.00"
           value={amount}
           onChange={handleAmountChange}
@@ -247,7 +280,7 @@ function CheckoutForm() {
 
       {/* Card Selection */}
       <div className="mb-4">
-        <label className="block text-text-primary dark:text-text-dark text-sm font-medium mb-2 text-left pl-3">
+        <label className="block text-[12px] text-left ml-3 font-semibold text-gray-700 mb-1">
           Select Card
         </label>
         <div className="flex gap-4">
@@ -347,10 +380,10 @@ function CheckoutForm() {
 
       {/* Card Number */}
       <div className="mb-4">
-        <label className="block text-text-primary dark:text-text-dark text-sm font-medium text-left pl-3 mb-1">
+        <label className="block text-[12px] text-left ml-3 font-semibold text-gray-700 mb-1">
           Card Number
         </label>
-        <div className="p-3 border h-10 rounded-[4px] focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light  bg-gray-0 dark:bg-gray-800">
+        <div className="p-3 border h-9 rounded-lg focus:ring-0 focus:border-1 outline-none border-border-border1  focus:border-primary-light  bg-gray-0 dark:bg-gray-800">
           <CardNumberElement
             options={{ style: { base: { fontSize: "13px", color: "#333" } } }}
           />
@@ -361,10 +394,10 @@ function CheckoutForm() {
       <div className="flex gap-4">
         {/* Expiration Date */}
         <div className="w-1/2">
-          <label className="block text-text-primary dark:text-text-dark text-sm font-medium text-left pl-3 mb-1">
+          <label className="block text-[12px] text-left ml-3 font-semibold text-gray-700 mb-1">
             Expiration Date
           </label>
-          <div className="p-3 border border-x-border-border1  rounded-[4px] h-10 bg-[white] dark:bg-gray-800">
+          <div className="p-3 border border-x-border-border1  h-9 rounded-lg bg-[white] dark:bg-gray-800">
             <CardExpiryElement
               options={{ style: { base: { fontSize: "13px", color: "#333" } } }}
             />
@@ -373,10 +406,10 @@ function CheckoutForm() {
 
         {/* CVC */}
         <div className="w-1/2">
-          <label className="block text-text-secondary dark:text-text-dark text-sm font-medium text-left pl-3 mb-1">
+          <label className="block text-[12px] text-left ml-3 font-semibold text-gray-700 mb-1">
             CVC
           </label>
-          <div className="p-3 border border-border-border1  rounded-[4px] h-10 bg-[white] dark:bg-gray-800">
+          <div className="p-3 border h-9 rounded-lg border-border-border1   bg-[white] dark:bg-gray-800">
             <CardCvcElement
               options={{ style: { base: { fontSize: "13px", color: "#333" } } }}
             />
