@@ -9,6 +9,7 @@ import PieChart from "../Components/disaster-funding/Pie-Chart.jsx";
 import DisasterLineChart from "../Components/admin-dashboard/DisasterLineChart.jsx";
 import Dashboard_grid from "../Components/admin-dashboard/Dashboard-Datagrid.jsx";
 import toast from "react-hot-toast";
+import Modal from "../Components/main-components/Model";
 import {
   Bell,
   PiggyBank,
@@ -17,116 +18,6 @@ import {
   BarChart3,
   FileDown,
 } from "lucide-react";
-
-const Dataset = {
-  Donations: "$350.00",
-  savings: "$250.00",
-  Distribution: "$250.00",
-  BalanceAmount: "$320.45",
-  usertraffic: 4500,
-  disasters: [
-    { type: "Earthquake", count: 40 },
-    { type: "Flood", count: 25 },
-    { type: "Hurricane", count: 15 },
-    { type: "Tornado", count: 10 },
-    { type: "Wildfire", count: 5 },
-    { type: "Others", count: 5 },
-  ],
-  disasterLineChartData: [
-    { date: "Feb 26", count: 20 },
-    { date: "March 01", count: 15 },
-    { date: "March 10", count: 30 },
-    { date: "March 12", count: 10 },
-    { date: "March 16", count: 25 },
-    { date: "March 20", count: 35 },
-  ],
-
-  users: [
-    {
-      name: "Damsara Dinindu",
-      email: "Adela.P.@pro.com",
-      profilePic: "https://placehold.co/40x40",
-    },
-    {
-      name: "Pasindu Hansana",
-      email: "Christian142@yahoo.com",
-      profilePic: "https://placehold.co/40x40",
-    },
-    {
-      name: "Kusal Mendis",
-      email: "JsenSaththam@inqe.com",
-      profilePic: "https://placehold.co/40x40",
-    },
-    {
-      name: "Pathum Nissanka",
-      email: "lara.croft@tombraider.com",
-      profilePic: "https://placehold.co/40x40",
-    },
-    {
-      name: "Kumar Sangakkara",
-      email: "john.doe@example.com",
-      profilePic: "https://placehold.co/40x40",
-    },
-
-    {
-      name: "Sanath Jayasuriya",
-      email: "mark.spade@spades.com",
-      profilePic: "https://placehold.co/40x40",
-    },
-  ],
-  disastersinfo: [
-    {
-      type: "Earthquake",
-      frequency: "40 Occurrences",
-      dateRange: "Jan 2023 - Feb 2023",
-      detailsUrl: "/earthquake-details",
-    },
-    {
-      type: "Flood",
-      frequency: "25 Occurrences",
-      dateRange: "March 2023",
-      detailsUrl: "/flood-details",
-    },
-    {
-      type: "Hurricane",
-      frequency: "15 Occurrences",
-      dateRange: "August 2023",
-      detailsUrl: "/hurricane-details",
-    },
-  ],
-  recodes: [
-    {
-      Id: "rec001",
-      date: "2025-03-21T12:34:56Z",
-      remark: "Payment processing for order #001",
-      status: "Pending",
-    },
-    {
-      Id: "rec002",
-      date: "2025-03-22T08:21:47Z",
-      remark: "Approval requested for order #002",
-      status: "Approved",
-    },
-    {
-      Id: "rec003",
-      date: "2025-03-23T14:45:19Z",
-      remark: "Rejection due to insufficient funds",
-      status: "Rejected",
-    },
-    {
-      Id: "rec004",
-      date: "2025-03-24T10:30:01Z",
-      remark: "Payment completed for order #004",
-      status: "Completed",
-    },
-    {
-      Id: "rec005",
-      date: "2025-03-25T16:20:43Z",
-      remark: "Pending approval for order #005",
-      status: "Pending",
-    },
-  ],
-};
 
 const Dashboard = () => {
   const [payment_data, setPayment_data] = useState([]);
@@ -137,6 +28,156 @@ const Dashboard = () => {
   const [Datarecode, setDataset] = useState([]);
   const [users, setUsers] = useState([]);
   const [disasters, setDisasters] = useState([]);
+  const [chartPeriod, setChartPeriod] = useState("Daily");
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [datasetRecords, setDatasetRecords] = useState([]);
+  const [dashboardData, setDashboardData] = useState({
+    Donations: "",
+    savings: "",
+    Distribution: "",
+    BalanceAmount: "",
+    usertraffic: 0,
+    disastersinfo: [],
+  });
+
+  const fetchDatasetRecords = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/dashboard/");
+      const data = await response.json();
+      // If your backend returns an array, use it directly
+      setDatasetRecords(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Failed to fetch dataset:", error);
+      setDatasetRecords([]);
+    }
+  };
+
+  const handleLoadDataset = (dataset) => {
+    // Update all relevant states with the selected dataset
+
+    setDashboardData({
+      Donations: dataset.Donations ?? "",
+      savings: dataset.savings ?? "",
+      Distribution: dataset.Distribution ?? "",
+      BalanceAmount: dataset.BalanceAmount ?? "",
+      usertraffic: dataset.usertraffic ?? 0,
+      disastersinfo: dataset.disastersinfo ?? [],
+    });
+    setUsers(dataset.users ?? []);
+    setDisasters(dataset.disasters ?? []);
+    // If you have other states to update, do so here
+    // Optionally, store the loaded dataset id in localStorage for persistence
+    localStorage.setItem("activeDatasetId", dataset._id);
+  };
+
+  const handleSyncRecode = async (recodeId) => {
+    // Prepare the latest dashboard data for the recode
+    const updatedRecode = {
+      Donations: getTotalDonations().toFixed(2),
+      savings: (getTotalDonations() - getTotalDonations() * 0.87).toFixed(2),
+      Distribution: (
+        users.filter((u) => u.status === "active").length / users.length || 0
+      ).toFixed(2),
+      BalanceAmount: (getTotalDonations() * 0.87).toFixed(2),
+      usertraffic: getActiveUsersCount(),
+      disasters: disasterTypeCounts.map((d) => ({
+        type: d.type,
+        count: d.count,
+      })),
+      disasterLineChartData,
+      users,
+      disastersinfo: latestDisasters,
+      // Optionally, update recodes array or other fields as needed
+    };
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/dashboard/${recodeId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedRecode),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to sync recode");
+      }
+
+      toast.success("Recode synced with latest dashboard data!");
+      fetchDatasetRecords(); // Refresh datagrid
+    } catch (error) {
+      toast.error("Failed to sync recode: " + error.message);
+    }
+  };
+
+  // Helper to group payments by period
+  const getChartDataByPeriod = (payments, period) => {
+    const groupMap = {};
+
+    payments.forEach((payment) => {
+      const date = new Date(payment.createdAt);
+      let key = "";
+      if (period === "Daily") {
+        key = date.toLocaleDateString();
+      } else if (period === "Weekly") {
+        // Get ISO week number
+        const tempDate = new Date(date.getTime());
+        tempDate.setHours(0, 0, 0, 0);
+        // Thursday in current week decides the year.
+        tempDate.setDate(
+          tempDate.getDate() + 3 - ((tempDate.getDay() + 6) % 7)
+        );
+        const week1 = new Date(tempDate.getFullYear(), 0, 4);
+        const weekNo =
+          1 +
+          Math.round(
+            ((tempDate.getTime() - week1.getTime()) / 86400000 -
+              3 +
+              ((week1.getDay() + 6) % 7)) /
+              7
+          );
+        key = `W${weekNo}-${tempDate.getFullYear()}`;
+      } else if (period === "Monthly") {
+        key = `${date.toLocaleString("default", { month: "short" })}-${date.getFullYear()}`;
+      } else if (period === "Yearly") {
+        key = `${date.getFullYear()}`;
+      }
+      if (!groupMap[key]) groupMap[key] = 0;
+      groupMap[key] += payment.amount;
+    });
+
+    // Sort keys chronologically
+    const sortedKeys = Object.keys(groupMap).sort((a, b) => {
+      if (period === "Yearly") return a - b;
+      if (period === "Monthly") {
+        const [ma, ya] = a.split("-");
+        const [mb, yb] = b.split("-");
+        return new Date(`${ma} 1, ${ya}`) - new Date(`${mb} 1, ${yb}`);
+      }
+      if (period === "Weekly") {
+        const [wa, ya] = a.replace("W", "").split("-");
+        const [wb, yb] = b.replace("W", "").split("-");
+        return ya !== yb ? ya - yb : wa - wb;
+      }
+      // Daily
+      return new Date(a) - new Date(b);
+    });
+
+    return sortedKeys.map((label) => ({
+      label,
+      value: groupMap[label],
+    }));
+  };
+
+  const chartData = getChartDataByPeriod(payment_data, chartPeriod);
+
+  const latestDisasters = [...disasters]
+    .sort(
+      (a, b) =>
+        new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt)
+    )
+    .slice(0, 3);
 
   // Export recodes as CSV
   const handleExportCSV = () => {
@@ -165,7 +206,6 @@ const Dashboard = () => {
     document.body.removeChild(link);
     toast.success("Report exported as CSV!");
   };
-
   // Fetch all disasters from backend
   const fetchDisasters = async () => {
     try {
@@ -191,6 +231,55 @@ const Dashboard = () => {
     }));
   })();
 
+  const getDisasterFrequencyByDate = (disasters, period = "Monthly") => {
+    const groupMap = {};
+
+    disasters.forEach((disaster) => {
+      const date = new Date(disaster.date || disaster.createdAt);
+      let key = "";
+      if (period === "Daily") {
+        key = date.toLocaleDateString();
+      } else if (period === "Monthly") {
+        key = `${date.toLocaleString("default", { month: "short" })}-${date.getFullYear()}`;
+      } else if (period === "Yearly") {
+        key = `${date.getFullYear()}`;
+      }
+      if (!groupMap[key]) groupMap[key] = 0;
+      groupMap[key] += 1;
+    });
+
+    // Sort keys chronologically
+    const sortedKeys = Object.keys(groupMap).sort(
+      (a, b) => new Date(a) - new Date(b)
+    );
+    return sortedKeys.map((date) => ({
+      date,
+      count: groupMap[date],
+    }));
+  };
+
+  const disasterLineChartData = getDisasterFrequencyByDate(
+    disasters,
+    chartPeriod
+  );
+
+  const getActiveUsersCount = () => {
+    if (!users || users.length === 0) return 0;
+    return users.length;
+  };
+
+  const getTotalDonations = () => {
+    if (!payment_data || payment_data.length === 0) return 0;
+    // If payment_data.amount is a string with "$", remove it and convert to number
+    return payment_data.reduce((sum, p) => {
+      let amount =
+        typeof p.amount === "string"
+          ? Number(p.amount.replace(/[^0-9.-]+/g, ""))
+          : p.amount;
+      return sum + (Number(amount) || 0);
+    }, 0);
+  };
+
   const fetchUsers = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/auth/users", {
@@ -207,34 +296,84 @@ const Dashboard = () => {
     }
   };
 
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/dashboard/");
+      const data = await response.json();
+      setDashboardData({
+        Donations: data.Donations ?? "",
+        savings: data.savings ?? "",
+        Distribution: data.Distribution ?? "",
+        BalanceAmount: data.BalanceAmount ?? "",
+        usertraffic: data.usertraffic ?? 0,
+        disastersinfo: data.disastersinfo ?? [],
+      });
+    } catch (error) {
+      toast.error("Failed to load dashboard data");
+    }
+  };
+
   useEffect(() => {
-    console.log(remark);
-    const mergedData = { ...Datarecode, remark, status };
-    fetchDataset();
     fetchPayments();
     fetchUsers();
     fetchDisasters();
-    setNewRecode(mergedData);
+    fetchDatasetRecords();
+    fetchDashboardData();
   }, []);
+
+  useEffect(() => {
+    const activeId = localStorage.getItem("activeDatasetId");
+    if (activeId && datasetRecords.length > 0) {
+      const found = datasetRecords.find((ds) => ds._id === activeId);
+      if (found) handleLoadDataset(found);
+    }
+    // Only run when datasetRecords changes
+  }, [datasetRecords]);
 
   useEffect(() => {
     setNewRecode((prev) => ({ ...prev, remark, status }));
   }, [remark, status]);
 
-  const [isFormVisible, setIsFormVisible] = useState(false);
-
   // Handle form submission to add a new recode
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(newRecode);
+    const recodeWithChart = {
+      ...newRecode,
+      Donations: getTotalDonations().toFixed(2),
+      savings: (getTotalDonations() - getTotalDonations() * 0.87).toFixed(2),
+      Distribution: (
+        users.filter((u) => u.status === "active").length / users.length || 0
+      ).toFixed(2),
+      BalanceAmount: (getTotalDonations() * 0.87).toFixed(2),
+      usertraffic: getActiveUsersCount(),
+
+      // Arrays
+      disasters: disasterTypeCounts.map((d) => ({
+        type: d.type,
+        count: d.count,
+      })), // If you want to store types
+      disasterLineChartData, // Already in correct format
+      users, // If you want to store users
+      disastersinfo: latestDisasters, // If you want to store disaster info
+      recodes: [
+        {
+          Id: newRecode.id,
+          date: new Date(),
+          remark,
+          status,
+        },
+        // ...add more if needed
+      ],
+    };
+
     try {
       const response = await fetch("http://localhost:5000/api/dashboard/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(newRecode),
+        body: JSON.stringify(recodeWithChart),
       });
 
       if (!response.ok) {
@@ -242,11 +381,15 @@ const Dashboard = () => {
       }
 
       const data = await response.json();
-      console.log(data);
 
       setNewRecode({ date: "", remark: "", status: "" }); // Reset form fields
       setIsFormVisible(false); // Close form
-      fetchDataset();
+      fetchDashboardData();
+      fetchDatasetRecords();
+
+      //Clear model Fileds
+      setRemark("");
+      setStatus("");
 
       toast.success("Recode added successfully!");
     } catch (error) {
@@ -275,19 +418,6 @@ const Dashboard = () => {
     }));
   };
   const data = getChartData(payment_data);
-  console.log(data);
-
-  const fetchDataset = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/dashboard/");
-      const data = await response.json(); // Convert response to JSON
-      setDataset(data); // Set the data to state
-    } catch (error) {
-      console.error("Error fetching payments:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchPayments = async () => {
     try {
@@ -343,8 +473,8 @@ const Dashboard = () => {
                 <HandCoins className="w-14 h-14 text-green-500 bg-green-50 rounded-xl p-2" />
                 <div className="text-left w-full">
                   <p className="text-gray-400 text-sm font-medium">Donations</p>
-                  <p className="text-[24px] font-semibold">
-                    {Dataset.Donations}
+                  <p className="text-[20px] font-semibold text-gray-700">
+                    ${getTotalDonations().toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -352,7 +482,11 @@ const Dashboard = () => {
                 <PiggyBank className="w-14 h-14 text-blue-500 bg-blue-50 rounded-xl p-2" />
                 <div className="text-left w-full">
                   <p className="text-gray-400 text-sm font-medium">Savings</p>
-                  <p className="text-[24px] font-semibold">{Dataset.savings}</p>
+                  <p className="text-[20px] font-semibold text-gray-700">
+                    $
+                    {getTotalDonations() -
+                      (getTotalDonations() * 0.87).toFixed(2)}
+                  </p>
                 </div>
               </div>
 
@@ -363,11 +497,14 @@ const Dashboard = () => {
                   <p className="text-gray-400 text-sm font-medium">
                     Distribution
                   </p>
-                  <p class="text-[24px] font-semibold">
-                    {Dataset.Distribution}
+                  <p class="text-[18px] font-semibold text-gray-700">
+                    {(
+                      users.filter((user) => user.status === "active").length /
+                        users.length || 0
+                    ).toFixed(2)}
                   </p>
                   <p class="text-gray-400 text-[12px]">
-                    <span className="text-green-400  font-semibold">+24% </span>
+                    <span className="text-green-400  font-semibold">+11% </span>
                     since last month
                   </p>
                 </div>
@@ -380,8 +517,8 @@ const Dashboard = () => {
                   <p className="text-gray-400 text-sm font-medium">
                     Balance Amount
                   </p>
-                  <p class="text-[24px] font-semibold">
-                    {Dataset.BalanceAmount}
+                  <p class="text-[18px] text-gray-700 font-semibold">
+                    ${(getTotalDonations() * 0.87).toFixed(2)}
                   </p>
                   <p class="text-gray-400 text-[12px]">
                     <span className="text-green-400  font-semibold">+24% </span>
@@ -397,7 +534,9 @@ const Dashboard = () => {
                   <p className="text-gray-400 text-sm font-medium">
                     User Traffic
                   </p>
-                  <p class="text-[24px] font-semibold">{Dataset.usertraffic}</p>
+                  <p class="text-[24px] font-semibold">
+                    {getActiveUsersCount()}
+                  </p>
                   <p class="text-gray-400 text-[12px]">
                     <span className="text-green-400  font-semibold">+450 </span>
                     since last week
@@ -410,13 +549,17 @@ const Dashboard = () => {
               <div class="bg-white p-4 rounded-lg shadow col-span-2">
                 <div class="flex justify-between items-center mb-4">
                   <div className="flex flex-col text-left">
-                    <p class="text-lg font-bold">This Month Donation</p>
+                    <p class="text-lg font-semibold">This Month Donation</p>
                     <p class="text-[13px] font-normal text-gray-400">
                       Analysis of Donations for the Current Month
                     </p>
                   </div>
                   <div className="flex flex-row-reverse gap-3 mt-2 items-center justify-center">
-                    <select className="border px-3 py-1 w-[120px] h-[30px] rounded-[4px] text-text-secondary outline-none text-[13px] border-gray-300 mr-3 ">
+                    <select
+                      className="border px-3 py-1 w-[120px] h-[30px] rounded-[4px] text-text-secondary outline-none text-[13px] border-gray-300 mr-3"
+                      value={chartPeriod}
+                      onChange={(e) => setChartPeriod(e.target.value)}
+                    >
                       <option value="Daily">Daily (Daily)</option>
                       <option value="Weekly">Weekly (Weekly)</option>
                       <option value="Monthly">Monthly (Monthly)</option>
@@ -429,15 +572,15 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
-                <Verticle_Barchart data={data} height={"24rem"} />
+                <Verticle_Barchart data={chartData} height={"24rem"} />
               </div>
               <div class="bg-white p-4 rounded-lg shadow">
                 <div className="flex flex-col text-left">
-                  <p class="text-lg font-bold">Disaster Types</p>
+                  <p class="text-lg font-semibold">Disaster Types</p>
                   <p class="text-[13px] font-normal text-gray-400">
                     Analysis based on the disaster types
                   </p>
-                  <PieChart data={Dataset.disasters} />
+                  <PieChart data={disasterTypeCounts} />
                 </div>
               </div>
             </div>
@@ -446,48 +589,65 @@ const Dashboard = () => {
             <div class="grid grid-cols-1 lg:grid-cols-[1fr_200px_1fr]  gap-4 mb-4">
               <div class="bg-white p-4 rounded-lg shadow ">
                 <div className="flex flex-col text-left ">
-                  <p class="text-lg font-bold">Disaster Frequency</p>
-                  <p class="text-[13px] font-normal text-gray-400">
+                  <p class="text-lg font-semibold">Disaster Frequency</p>
+                  <p class="text-[13px] font-normal text-gray-400 ">
                     Analysis based on the disaster Frequency
                   </p>
-                  <DisasterLineChart data={Dataset.disasterLineChartData} />
+                  <div className="pt-2">
+                    <DisasterLineChart
+                      data={disasterLineChartData}
+                      height={470}
+                    />
+                  </div>
                 </div>
               </div>
               {/* Second Row Grid 2nd Card*/}
-              <div className="flex flex-col gap-4">
-                {Dataset &&
-                  Dataset.disastersinfo &&
-                  Dataset.disastersinfo.length > 0 &&
-                  Dataset.disastersinfo.map((disaster, index) => (
-                    <div className="bg-white p-4 h-full rounded-lg shadow flex flex-col justify-center items-center">
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                          <p className="text-lg font-semibold ">
-                            {disaster.type}
-                          </p>
-                          <p className="text-gray-500 text-sm mb-1">
-                            {disaster.frequency}
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            Date: {disaster.dateRange}
-                          </p>
+              <div className="bg-white p-4 rounded-lg shadow mb-6 h-full">
+                <h2 className="text-lg font-semibold mb-2 text-gray-700 pb-2 border-b border-gray-200">
+                  Latest Disasters
+                </h2>
+                <div className="flex flex-col gap-4">
+                  {latestDisasters.length === 0 ? (
+                    <p className="text-gray-400 text-sm">
+                      No recent disasters found.
+                    </p>
+                  ) : (
+                    latestDisasters.map((disaster, idx) => (
+                      <div
+                        key={disaster._id || idx}
+                        className="flex items-center gap-4 border-b last:border-b-0 pb-3 last:pb-0"
+                      >
+                        <div className="flex flex-col text-left">
+                          <span className="font-medium text-gray-700">
+                            {disaster.disasterType}
+                          </span>
+                          <span className="text-[13px] mt-2 text-gray-500">
+                            {disaster.description
+                              ? disaster.description.length > 100
+                                ? disaster.description.slice(0, 100) + "..."
+                                : disaster.description
+                              : ""}
+                          </span>
+                          <span className="text-[13px] mt-2 text-gray-400">
+                            {new Date(
+                              disaster.date || disaster.createdAt
+                            ).toLocaleString()}
+                          </span>
                         </div>
                       </div>
-                      <button className="bg-green-500 h-[30px] w-[120px] items-center flex text-center  text-white px-4 py-2 rounded-md hover:bg-green-600 mt-4">
-                        View Details
-                      </button>
-                    </div>
-                  ))}
+                    ))
+                  )}
+                </div>
               </div>
               <div className="bg-white p-4 rounded-lg shadow w-full">
-                <div className="flex flex-col text-left w-full mb-4">
+                <div className="flex flex-col text-left w-full mb-4 border-b border-gray-200 pb-2">
                   <p className="text-lg font-semibold">Registered Users</p>
                   <p className="text-[13px] font-normal text-gray-400 w-full">
                     List of registered users for Guardian Earth
                   </p>
                 </div>
                 <ul
-                  className="max-h-[400px] overflow-y-auto pr-2"
+                  className="max-h-[470px] overflow-y-auto pr-2"
                   style={{ minHeight: "180px" }}
                 >
                   {users && users.length > 0 ? (
@@ -525,102 +685,89 @@ const Dashboard = () => {
             </div>
 
             <div class="bg-white p-4 rounded-lg shadow">
-              <Dashboard_grid recodes={Datarecode} fetchdata={fetchDataset} />
+              <Dashboard_grid
+                recodes={datasetRecords}
+                fetchdata={fetchDatasetRecords}
+                onSync={handleSyncRecode}
+                onLoadDataset={handleLoadDataset}
+              />
             </div>
 
             <div class="bg-white p-4 rounded-lg shadow flex flex-col justify-center items-center">
               {/* Button to toggle form visibility */}
               <button
-                onClick={() => setIsFormVisible(!isFormVisible)}
+                onClick={() => setIsFormVisible(true)}
                 className="px-4 py-2 w-[200px] bg-green-500 text-white rounded-lg mb-4 h-[35px] flex items-center justify-center"
               >
-                {isFormVisible ? "Close Form" : "Add New Recode"}
+                Add New Recode
               </button>
-
-              {/* Form for adding a new recode */}
-              {isFormVisible && (
-                <form
-                  onSubmit={handleFormSubmit}
-                  className="bg-white p-4 rounded-lg shadow-lg mb-4"
-                >
-                  <div className="flex flex-col gap-6 p-6 bg-white rounded-lg  max-w-md mx-auto">
-                    {/* Recode ID */}
-                    <div>
-                      <label className="text-sm font-semibold text-gray-800">
-                        Recode ID
-                      </label>
-                      <input
-                        type="text"
-                        name="id"
-                        value={newRecode.id}
-                        className="border border-gray-300 p-3 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-green-500 transition duration-300"
-                        required
-                      />
-                    </div>
-
-                    {/* Recode Date */}
-                    {/* <div>
-                      <label className="text-sm font-semibold text-gray-800">
-                        Recode Date
-                      </label>
-                      <input
-                        type="date"
-                        name="date"
-                        value={recodeDate}
-                        onChange={(e) => setDate(e.target.value)}
-                        className="border border-gray-300 p-3 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-green-500 transition duration-300"
-                        required
-                      />
-                    </div> */}
-
-                    {/* Recode Remark */}
-                    <div>
-                      <label className="text-sm font-semibold text-gray-800">
-                        Recode Remark
-                      </label>
-                      <textarea
-                        name="remark"
-                        value={remark}
-                        onChange={(e) => setRemark(e.target.value)}
-                        className="border border-gray-300 p-3 rounded-md w-full h-24 focus:outline-none focus:ring-1 focus:ring-green-500 transition duration-300"
-                        required
-                      />
-                    </div>
-
-                    {/* Status */}
-                    <div>
-                      <label className="text-sm font-semibold text-gray-800">
-                        Status
-                      </label>
-                      <select
-                        name="status"
-                        value={status}
-                        onChange={(e) => setStatus(e.target.value)}
-                        className="border border-gray-300 p-3 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-green-500 transition duration-300"
-                        required
-                      >
-                        <option value="">Select Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Rejected">Rejected</option>
-                        <option value="Completed">Completed</option>
-                      </select>
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                      type="submit"
-                      className="bg-green-500 text-white px-6 py-3 rounded-lg mt-6 w-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
-                    >
-                      Add Recode
-                    </button>
-                  </div>
-                </form>
-              )}
             </div>
           </div>
         </div>
       </div>
+      {/* Modal for Add New Recode */}
+      <Modal
+        isOpen={isFormVisible}
+        onClose={() => setIsFormVisible(false)}
+        title="Add New Recode"
+      >
+        <form onSubmit={handleFormSubmit} className="bg-white p-4 rounded-lg ">
+          <div className="flex flex-col gap-6  bg-white rounded-lg ">
+            {/* Recode ID */}
+            <div>
+              <label className="text-sm font-semibold text-gray-800">
+                Recode ID
+              </label>
+              <input
+                type="text"
+                name="id"
+                value={newRecode.id}
+                className="border h-[36px] mt-1 border-gray-300 p-3 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-green-500 transition duration-300"
+                required
+              />
+            </div>
+            {/* Recode Remark */}
+            <div>
+              <label className="text-sm font-semibold text-gray-800">
+                Recode Remark
+              </label>
+              <textarea
+                name="remark"
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+                className="border mt-1 border-gray-300 p-3 rounded-md w-full h-16 focus:outline-none focus:ring-1 focus:ring-green-500 transition duration-300"
+                required
+              />
+            </div>
+            {/* Status */}
+            <div>
+              <label className="text-sm font-semibold text-gray-800">
+                Status
+              </label>
+              <select
+                name="status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="border h-[36px] mt-1 border-gray-300 text-[13px] pl-2 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-green-500 transition duration-300"
+                required
+              >
+                <option value="">Select Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="bg-green-500 h-[40px] text-white px-6 py-2 text-[14px] rounded-lg mt-4 w-full hover:bg-green-600 focus:outline-none focus:ring-0 focus:ring-green-500 transition duration-300"
+            >
+              Add Recode
+            </button>
+          </div>
+        </form>
+      </Modal>
     </>
   );
 };
