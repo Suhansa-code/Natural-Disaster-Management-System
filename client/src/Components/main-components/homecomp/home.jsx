@@ -11,6 +11,7 @@ import droneimage from "../../../assets/droneimage.png";
 import mobileCommandimage from "../../../assets/mobileCommandimage.png";
 import { ArrowRight } from "lucide-react";
 import { Quote, User } from "lucide-react";
+import {useNavigate } from "react-router-dom";
 
 import {
   AlertTriangle,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import StatsSection from "./StatSection";
 import Footer from "./footer";
+import { use } from "react";
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,9 +31,18 @@ const Home = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeEmergency, setActiveEmergency] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState(null);
+  const navigate = useNavigate();
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  
+  const navigate = useNavigate();
   };
+  const handleClick = ()=> {
+    navigate('/flood-predictor')
+  };
+
+  
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
@@ -39,6 +50,7 @@ const Home = () => {
       } else {
         setIsScrolled(false);
       }
+
     };
     window.addEventListener("scroll", handleScroll);
     return () => {
@@ -99,6 +111,8 @@ const Home = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
+ 
+
   return (
     <>
       <div className="min-h-screen bg-white relative">
@@ -141,9 +155,9 @@ const Home = () => {
                 unprecedented efficiency.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="bg-green-500 hover:bg-green-600 z-10 w-[200px] h-[38px]  justify-center text-white px-2 py-3 rounded-md transition-all duration-300 text-[15px] font-normal !rounded-button whitespace-nowrap cursor-pointer shadow-md flex items-center">
-                  <FaBolt className="mr-2" /> Emergency Response
-                </button>
+                <button onClick = {handleClick} className="bg-green-500 hover:bg-green-600 z-10 w-[200px] h-[38px]  justify-center text-white px-2 py-3 rounded-md transition-all duration-300 text-[15px] font-normal !rounded-button whitespace-nowrap cursor-pointer shadow-md flex items-center">
+                  <FaBolt className="mr-2" /> Disaster Early Warning
+                </button> 
                 <button className="bg-white hover:bg-gray-50 w-[160px] h-[38px] gap-2 flex flex-row justify-center text-gray-800 border border-gray-200 px-[14px] py-3 rounded-md transition-all duration-300 text-[15px] font-normal !rounded-button whitespace-nowrap cursor-pointer shadow-md  items-center group">
                   <span>View Resources</span>
                   <FaArrowRight className=" transition-transform group-hover:translate-x-[2px] duration-100 mt-[0.5px] mx-[5px]" />
