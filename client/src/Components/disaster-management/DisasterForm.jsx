@@ -311,6 +311,7 @@ const AddDisaster = ({
               name="severityLevel"
               value={inputs.severity}
               onChange={handleChange}
+                            
               className={`w-full px-3 py-2 text-sm  ring-0 outline-none rounded-lg border ${
                 errors.severity ? "border-red-500" : "border-gray-200"
               } focus:border-green-500 transition-colors duration-200 bg-white/50 backdrop-blur-sm`}
