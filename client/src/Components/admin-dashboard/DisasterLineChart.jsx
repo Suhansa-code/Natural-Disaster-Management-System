@@ -20,7 +20,7 @@ ChartJS.register(
   Legend
 );
 
-const DisasterLineChart = ({ data }) => {
+const DisasterLineChart = ({ data, height = 350 }) => {
   // Prepare the dataset for the line chart
   const lineChartData = {
     labels: data ? data.map((item) => item.date) : [], // Dates from the data
@@ -41,6 +41,7 @@ const DisasterLineChart = ({ data }) => {
   // Line chart options
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     scales: {
       x: {
         title: {
@@ -64,9 +65,9 @@ const DisasterLineChart = ({ data }) => {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg ">
-      <div className="mt-4">
-        <Line data={lineChartData} options={options} />
+    <div className="bg-white p-4 rounded-lg" style={{ height }}>
+      <div className="mt-4" style={{ height: "100%" }}>
+        <Line data={lineChartData} options={options} height={height} />
       </div>
     </div>
   );

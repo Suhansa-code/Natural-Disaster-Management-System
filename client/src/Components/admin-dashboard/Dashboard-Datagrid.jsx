@@ -2,7 +2,13 @@ import React from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 
-const Dashboard_grid = ({ recodes, loading, fetchdata }) => {
+const Dashboard_grid = ({
+  recodes,
+  loading,
+  fetchdata,
+  onSync,
+  onLoadDataset,
+}) => {
   const handleDelete = async (id) => {
     toast(
       (t) => (
@@ -77,10 +83,18 @@ const Dashboard_grid = ({ recodes, loading, fetchdata }) => {
             recodes.map((recode) => (
               <React.Fragment key={recode.Id}>
                 <span className="text-[13px] text-left font-normal text-text-secondary">
-                  {recode.id ? recode.id.slice(-5) : "N/A"}
+                  {recode.id
+                    ? recode.id.slice(-5)
+                    : recode.Id
+                      ? recode.Id.slice(-5)
+                      : "N/A"}
                 </span>
                 <span className="text-[13px] text-left font-normal text-text-secondary">
-                  {recode.date ? recode.date.slice(0, 10) : "N/A"}
+                  {recode.date
+                    ? recode.date.slice(-5)
+                    : recode.date
+                      ? recode.date.slice(-5)
+                      : "N/A"}
                 </span>
                 <span className="text-[13px] text-left font-normal text-text-secondary">
                   {recode.remark}
@@ -92,7 +106,10 @@ const Dashboard_grid = ({ recodes, loading, fetchdata }) => {
                 {/* Action Buttons */}
                 <div className="flex justify-start gap-2">
                   <>
-                    <button className="px-2 py-0 bg-primary-light border-primary-light h-[26px] w-[70px] text-white hover:bg-hover-light transition-all duration-200 font-normal rounded-[4px] text-[13px]">
+                    <button
+                      className="px-2 py-0 bg-primary-light border-primary-light h-[26px] w-[70px] text-white hover:bg-hover-light transition-all duration-200 font-normal rounded-[4px] text-[13px]"
+                      onClick={() => onSync && onSync(recode._id || recode.Id)}
+                    >
                       Sync
                     </button>
                     <button
@@ -101,7 +118,10 @@ const Dashboard_grid = ({ recodes, loading, fetchdata }) => {
                     >
                       Delete
                     </button>
-                    <button className="px-2 py-0 bg-white border border-yellow-500 h-[26px] w-[120px] text-yellow-600 hover:bg-yellow-100 transition-all duration-200 font-normal rounded-[4px] text-[13px]">
+                    <button
+                      onClick={() => onLoadDataset && onLoadDataset(recode)}
+                      className="px-2 py-0 bg-white border border-yellow-500 h-[26px] w-[120px] text-yellow-600 hover:bg-yellow-100 transition-all duration-200 font-normal rounded-[4px] text-[13px]"
+                    >
                       Load Dataset
                     </button>
                   </>
