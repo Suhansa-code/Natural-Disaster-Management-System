@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Create a Stripe payment intent
 export const createPayment = async (req, res) => {
-  const { username, amount, currency, email } = req.body;
+  const { user_ID, username, amount, currency, email } = req.body;
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
@@ -18,7 +18,8 @@ export const createPayment = async (req, res) => {
 
     // Save the payment record in MongoDB
     const newPayment = new Payment({
-      user: username, // Ensure user authentication middleware is used
+      user: user_ID, // Save the user ID
+      name: username,
       paymentMethod: "stripe",
       amount,
       currency,
@@ -40,14 +41,25 @@ export const createPayment = async (req, res) => {
 
 // Verify a manual bank transfer payment
 export const verifyPayment = async (req, res) => {
-  const { username, amount, branch, currency, slipImage, email } = req.body;
+  const {
+    user_ID,
+    username,
+    amount,
+    bankname,
+    branch,
+    currency,
+    slipImage,
+    email,
+  } = req.body;
 
   try {
     const newPayment = new Payment({
-      user: username, // Ensure user authentication middleware is used
+      user: user_ID, // Save the user ID
+      name: username,
       paymentMethod: "bank_transfer",
       amount,
       currency,
+      bankname,
       branch,
       status: "Pending",
       slipImage,
@@ -104,5 +116,19 @@ export const deletePayment = async (req, res) => {
     res.json({ message: "Payment record deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Fetch payments for a specific user
+export const getUserPayments = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const payments = await Payment.find({ user: userId }).sort({
+      createdAt: -1,
+    });
+    res.json({ payments });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

@@ -5,14 +5,15 @@ import {
   CardExpiryElement,
   CardCvcElement,
 } from "@stripe/react-stripe-js";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Stripe_img from "../../assets/Icons/Stripe.png";
 import Amex_img from "../../assets/Icons/American Express.png";
 import toast from "react-hot-toast";
 import jsPDF from "jspdf";
 import { SiTicktick } from "react-icons/si";
+import { AuthContext } from "../../context/AuthContext";
 
-function CheckoutForm() {
+function CheckoutForm({ refreshPayments }) {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,15 @@ function CheckoutForm() {
   const [error, setError] = useState("");
   const [nameError, setNameError] = useState("");
   const [Amounterror, setAmountError] = useState("");
+
+  const clearFields = () => {
+    setName("");
+    setEmail("");
+    setAmount("");
+    setError("");
+    setNameError("");
+    setAmountError("");
+  };
 
   // Email Validation Function
   const validateEmail = (email) => {
@@ -93,6 +103,9 @@ function CheckoutForm() {
     }
   };
 
+  const { user } = useContext(AuthContext);
+  const user_ID = user?.id;
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -115,6 +128,7 @@ function CheckoutForm() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        user_ID,
         username: name,
         email: email,
         currency: "USD",
@@ -136,6 +150,9 @@ function CheckoutForm() {
     } else {
       console.log("Payment Method Created:", paymentMethod);
       toast.success("Payment Successful!");
+      clearFields();
+
+      refreshPayments(); // Refresh payments after successful payment
 
       // Generate PDF
       const doc = new jsPDF();
@@ -177,7 +194,7 @@ function CheckoutForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className=" mx-auto max-w-md  w-full dark:bg-slate-800 transition-all ml-0 mr-auto mt-5"
+      className=" mx-auto space-y-4  ml-0 pr-6 mr-auto mt-5  w-full dark:bg-slate-800 transition-all "
     >
       {/* Name Input */}
       <div className="mb-4 text-left">
