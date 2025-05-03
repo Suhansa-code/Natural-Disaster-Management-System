@@ -13,7 +13,7 @@ import jsPDF from "jspdf";
 import { SiTicktick } from "react-icons/si";
 import { AuthContext } from "../../context/AuthContext";
 
-function CheckoutForm({ refreshPayments }) {
+function CheckoutForm({ refreshPayments, selectedDisaster }) {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -103,7 +103,7 @@ function CheckoutForm({ refreshPayments }) {
     }
   };
 
-  const { user } = useContext(AuthContext);
+  const { isAuthenticated, user } = useContext(AuthContext);
   const user_ID = user?.id;
 
   const handleSubmit = async (event) => {
@@ -111,6 +111,22 @@ function CheckoutForm({ refreshPayments }) {
     setLoading(true);
     setError("");
 
+    if (!isAuthenticated) {
+      toast.error("You must be logged in to make a payment.");
+      setLoading(false);
+      return;
+    }
+    if (!selectedDisaster) {
+      toast.error("Please select a disaster to donate to.");
+      setLoading(false);
+      return;
+    }
+
+    if (!name || !email) {
+      toast.error("Please fill in all fields.");
+      setLoading(false);
+      return;
+    }
     if (!stripe || !elements) return;
     if (!name || !email) {
       setError("Please fill in all fields.");

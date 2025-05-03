@@ -37,6 +37,7 @@ const adminPostView = () => {
   const [pendingPosts, setPendingPosts] = useState([]);
   const [approvedPosts, setApprovedPosts] = useState([]);
   const [statusFilter, setStatusFilter] = useState("All");
+  const deleteToastRef = useRef(null);
 
   // Form states
   const [title, setTitle] = useState("");
@@ -152,6 +153,9 @@ const adminPostView = () => {
   };
 
   const handleDelete = async (postId) => {
+    if (deleteToastRef.current) {
+      return;
+    }
     toast.dismiss();
     toast(
       (t) => (
@@ -276,7 +280,23 @@ const adminPostView = () => {
                     className="text-gray-600 flex flex-row items-center gap-2 hover:text-green-600 border-[1px] border-gray-300 px-2 py-[2px] rounded-[4px] transition-colors"
                   >
                     <Image className="h-4 w-4" /> Preview
-                  </button>
+                  </button>{" "}
+                  {post.status === "pending" && (
+                    <div className="flex text-left">
+                      <button
+                        onClick={() => approvePost(post._id)}
+                        className="text-white flex flex-row items-center gap-2 text-[15px] bg-green-500 hover:bg-green-600 border-[1px] border-gray-300 px-2 py-[2px] rounded-[4px] transition-colors"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => rejectPost(post._id)}
+                        className="text-white flex flex-row items-center gap-2 text-[15px] bg-red-500 hover:bg-red-600 border-[1px] border-gray-300 px-2 py-[2px] rounded-[4px] transition-colors"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
                 </div>
               </td>
             </tr>

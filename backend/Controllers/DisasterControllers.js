@@ -44,6 +44,7 @@ export const insertDisaster = async (req, res, next) => {
       date,
       Location,
       contact,
+      status: "Pending",
     });
     await createdDisaster.save();
   } catch (error) {
@@ -105,6 +106,7 @@ export const updateDisaster = async (req, res, next) => {
       date,
       Location,
       contact,
+      status: "Pending",
     });
     disaster = await disaster.save();
   } catch (err) {
@@ -136,4 +138,38 @@ export const deleteDisaster = async (req, res, next) => {
   }
 
   return res.status(200).send({ message: "Disaster deleted successfully" });
+};
+
+// Approve Disaster
+export const approveDisaster = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const disaster = await Disaster.findByIdAndUpdate(
+      id,
+      { status: "Approved" },
+      { new: true }
+    );
+    if (!disaster)
+      return res.status(404).json({ message: "Disaster not found" });
+    res.json({ message: "Disaster approved successfully", disaster });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to approve disaster" });
+  }
+};
+
+// Reject Disaster
+export const rejectDisaster = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const disaster = await Disaster.findByIdAndUpdate(
+      id,
+      { status: "Rejected" },
+      { new: true }
+    );
+    if (!disaster)
+      return res.status(404).json({ message: "Disaster not found" });
+    res.json({ message: "Disaster rejected successfully", disaster });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to reject disaster" });
+  }
 };

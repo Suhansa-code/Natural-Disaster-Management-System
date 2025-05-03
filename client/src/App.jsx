@@ -24,11 +24,9 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./Components/main-components/ProtectedRoute";
 import NotFound from "./Pages/NotFound";
 
-
 //Disaster management imports
-import AddDisaster from "./components/disaster-management/addDisaster";
 import ViewDisaster from "./Components/disaster-management/ViewDisaster";
-import UpdateDisaster from "./components/disaster-management/updateDisaster";
+import AdminDisasterView from "./Components/disaster-management/adminDisasterView";
 
 //Comunity-support imports
 import PostView from "./components/community-support/PostView";
@@ -74,32 +72,8 @@ function App() {
               <Route path="/User-management" element={<UserManagement />} />
               <Route path="/flood-predictor" element={<FloodPredictor />} />
 
-
               {/* Disaster management */}
-              <Route
-                path="/Disaster"
-                element={
-                  <ProtectedRoute>
-                    <ViewDisaster />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/add-disaster"
-                element={
-                  <ProtectedRoute>
-                    <AddDisaster />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/UpdateDisaster/:id"
-                element={
-                  <ProtectedRoute>
-                    <UpdateDisaster />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/Disaster" element={<ViewDisaster />} />
 
               {/* Comunity-support */}
               <Route
@@ -115,6 +89,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ViewPosts />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/disaster"
+                element={
+                  <ProtectedRoute>
+                    <AdminDisasterView />
                   </ProtectedRoute>
                 }
               />
