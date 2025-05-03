@@ -1,5 +1,5 @@
 import Posts from "../Models/postsModel.js";
-import sendEmail from "../Utils/mailer.js";
+import sendEmail, { sendDisasterAlertEmail } from "../Utils/sendEmail.js";
 
 export const getAllPosts = async (req, res) => {
   let posts;
@@ -50,24 +50,6 @@ export const insertPosts = async (req, res, next) => {
     return res
       .status(200)
       .send({ message: "Post created and pending approval" });
-
-    await sendEmail({
-      subject: `🚨 New Disaster Alert: ${title}`,
-      text: `Category: ${category}\nLocation: ${location}\nDate: ${disasterDate}\nDescription: ${description}`,
-      html: `
-        <h2>🚨 New Disaster Alert</h2>
-        <p><strong>Title:</strong> ${title}</p>
-        <p><strong>Category:</strong> ${category}</p>
-        <p><strong>Location:</strong> ${location}</p>
-        <p><strong>Date:</strong> ${disasterDate}</p>
-        <p><strong>Description:</strong> ${description}</p>
-        ${
-          imageUrl
-            ? `<p><strong>Image:</strong><img src="${imageUrl}" alt="Disaster Image" width="200px" /></p>`
-            : ""
-        }
-      `,
-    });
   } catch (error) {
     return res.status(500).send({ message: "Failed to create post" });
     console.log(error);
@@ -230,6 +212,27 @@ export const approvePost = async (req, res) => {
       { new: true }
     );
     if (!post) return res.status(404).send({ message: "Post not found" });
+
+    // Send disaster alert email after approval
+    await sendDisasterAlertEmail({
+      subject: `🚨 New Disaster Alert: ${post.title}`,
+      text: `Category: ${post.category}\nLocation: ${post.location}\nDate: ${post.disasterDate}\nDescription: ${post.description}`,
+      html: `
+    <h2>🚨 New Disaster Alert</h2>
+    <p><strong>Title:</strong> ${post.title}</p>
+    <p><strong>Category:</strong> ${post.category}</p>
+    <p><strong>Location:</strong> ${post.location}</p>
+    <p><strong>Date:</strong> ${post.disasterDate}</p>
+    <p><strong>Description:</strong> ${post.description}</p>
+    ${
+      post.imageUrl
+        ? `<p><strong>Image:</strong><img src="${post.imageUrl}" alt="Disaster Image" width="200px" /></p>`
+        : ""
+    }
+  `,
+      // to: "recipient@example.com" // Optional, defaults to admin
+    });
+
     res.json(post);
   } catch (error) {
     res.status(500).send({ message: "Failed to approve post" });

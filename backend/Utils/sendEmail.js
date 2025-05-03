@@ -52,4 +52,25 @@ const sendEmail = async (
   await transporter.sendMail(mailOptions);
 };
 
+// New function for disaster alert after post approval
+export const sendDisasterAlertEmail = async ({ subject, text, html, to }) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: "GuardianEarth.Pro@gmail.com",
+    to: to || process.env.EMAIL_USER, // Default to admin if not provided
+    subject,
+    text,
+    html,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
 export default sendEmail;
