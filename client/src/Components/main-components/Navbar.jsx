@@ -79,6 +79,11 @@ function Navbar() {
             icon: <LayoutDashboard className="w-4 h-4" />,
           },
           {
+            name: "Disaster",
+            link: "/admin/Disaster",
+            icon: <CircleDollarSign className="w-4 h-4" />,
+          },
+          {
             name: "Funding",
             link: "/admin/payments",
             icon: <CircleDollarSign className="w-4 h-4" />,

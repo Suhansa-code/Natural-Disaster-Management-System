@@ -33,6 +33,11 @@ const disasterSchema = new mongoose.Schema({
   contact: {
     type: Number,
   },
+  status: {
+    type: String,
+    enum: ["Pending", "Approved", "Rejected"],
+    default: "Pending",
+  },
 });
 
 const disaster = mongoose.model("Disaster", disasterSchema);

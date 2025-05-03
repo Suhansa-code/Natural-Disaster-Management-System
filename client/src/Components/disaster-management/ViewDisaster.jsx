@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import mapimage from "../../assets/map.png";
 import { useModal } from "../main-components/ModalContext";
+import { FaEdit } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
+import { AuthContext } from "../../context/AuthContext";
 
 import Modal from "../main-components/Model";
 import {
@@ -58,6 +61,7 @@ export default function ViewDisasters() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { isModalOpen, setIsModalOpen } = useModal();
+  const { isAuthenticated, user, logout } = useContext(AuthContext);
 
   const fetchDisaster = async () => {
     try {
@@ -208,29 +212,26 @@ export default function ViewDisasters() {
               </div>
             </div>
 
-            <div className="pt-3 flex justify-end gap-2 ">
-              <button
-                // onClick={() => navigate(`/edit-disaster/${data._id}`)}
-                onClick={() => {
-                  handleEdit(data);
-                }}
-                type="button"
-                className="inline-flex items-center justify-around px-4 py-1 border w-[100px] h-[30px]  border-emerald-600 rounded-md text-xs font-medium text-emerald-700 bg-white hover:bg-emerald-50"
-              >
-                <Edit className="w-3 h-3 mr-1" />
-                Update
-              </button>
-              <button
-                onClick={() => {
-                  handleDelte(data._id);
-                }}
-                type="button"
-                className="inline-flex items-center justify-around px-4 py-1 border w-[100px] h-[30px] border-transparent rounded-md text-xs font-medium text-white bg-red-600 hover:bg-red-700"
-              >
-                <Trash2 className="w-3 h-3 mr-1" />
-                Delete
-              </button>
-            </div>
+            <td className="px-6 py-4">
+              <div className="flex space-x-3">
+                {isAuthenticated && (
+                  <>
+                    <button
+                      onClick={() => handleEdit(d)}
+                      className="text-gray-600 hover:text-green-600 transition-colors"
+                    >
+                      <FaEdit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelte(d._id)}
+                      className="text-gray-600 hover:text-red-600 transition-colors"
+                    >
+                      <FaTrash size={16} />
+                    </button>
+                  </>
+                )}
+              </div>
+            </td>
           </div>
 
           <div className="relative m-5 lg:rounded-l-xl overflow-hidden w-auto max-h-[250px]">
@@ -392,26 +393,30 @@ export default function ViewDisasters() {
           </div>
 
           <div className="pt-3 pb-1 flex justify-end border-t gap-2">
-            <button
-              onClick={() => {
-                handleEdit(data);
-              }}
-              type="button"
-              className="inline-flex items-center justify-around px-4 py-1 border w-[100px] h-[30px]  border-emerald-600 rounded-md text-xs font-medium text-emerald-700 bg-white hover:bg-emerald-50"
-            >
-              <Edit className="w-3 h-3 mr-1" />
-              Update
-            </button>
-            <button
-              onClick={() => {
-                handleDelte(data._id);
-              }}
-              type="button"
-              className="inline-flex items-center justify-around px-4 py-1 border w-[100px] h-[30px] border-transparent rounded-md text-xs font-medium text-white bg-red-600 hover:bg-red-700"
-            >
-              <Trash2 className="w-3 h-3 mr-1" />
-              Delete
-            </button>
+            {isAuthenticated && (
+              <>
+                <button
+                  onClick={() => {
+                    handleEdit(data);
+                  }}
+                  type="button"
+                  className="inline-flex items-center justify-around px-4 py-1 border w-[100px] h-[30px]  border-emerald-600 rounded-md text-xs font-medium text-emerald-700 bg-white hover:bg-emerald-50"
+                >
+                  <Edit className="w-3 h-3 mr-1" />
+                  Update
+                </button>
+                <button
+                  onClick={() => {
+                    handleDelte(data._id);
+                  }}
+                  type="button"
+                  className="inline-flex items-center justify-around px-4 py-1 border w-[100px] h-[30px] border-transparent rounded-md text-xs font-medium text-white bg-red-600 hover:bg-red-700"
+                >
+                  <Trash2 className="w-3 h-3 mr-1" />
+                  Delete
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

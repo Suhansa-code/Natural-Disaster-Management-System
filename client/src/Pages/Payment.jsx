@@ -45,7 +45,7 @@ function Payment() {
   const [payments, setPayments] = useState([]);
   const [SlipImage, setSlipImage] = useState("");
 
-  const { user } = useContext(AuthContext);
+  const { isAuthenticated, user } = useContext(AuthContext);
   const user_ID = user?.id;
 
   const handleFileChange = (event) => {
@@ -511,7 +511,10 @@ function Payment() {
                 <div className=" w-full">
                   {paymentMethod === "card" ? (
                     <Elements stripe={stripePromise}>
-                      <CheckoutForm refreshPayments={refreshPayments} />
+                      <CheckoutForm
+                        refreshPayments={refreshPayments}
+                        selectedDisaster={selectedDisaster}
+                      />
                     </Elements>
                   ) : (
                     <div className="space-y-4  w-full ml-0 pr-6 mr-auto mt-5 ">
@@ -644,7 +647,21 @@ function Payment() {
                       <div className="flex space-x-3 w-full mt-5 justify-end">
                         <button
                           type="button"
-                          onClick={handleSubmit}
+                          onClick={() => {
+                            if (!isAuthenticated) {
+                              toast.error(
+                                "You must be logged in to make a payment."
+                              );
+                              return;
+                            }
+                            if (!selectedDisaster) {
+                              toast.error(
+                                "Please select a disaster before submitting."
+                              );
+                              return;
+                            }
+                            handleSubmit();
+                          }}
                           className="px-4 py-1 bg-primary-light text-white text-sm rounded-md hover:bg-hover-light"
                           disabled={loading}
                         >
