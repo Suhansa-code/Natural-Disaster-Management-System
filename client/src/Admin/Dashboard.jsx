@@ -9,6 +9,14 @@ import PieChart from "../Components/disaster-funding/Pie-Chart.jsx";
 import DisasterLineChart from "../Components/admin-dashboard/DisasterLineChart.jsx";
 import Dashboard_grid from "../Components/admin-dashboard/Dashboard-Datagrid.jsx";
 import toast from "react-hot-toast";
+import {
+  Bell,
+  PiggyBank,
+  HandCoins,
+  Users,
+  BarChart3,
+  FileDown,
+} from "lucide-react";
 
 const Dataset = {
   Donations: "$350.00",
@@ -127,12 +135,85 @@ const Dashboard = () => {
   const [remark, setRemark] = useState("");
   const [status, setStatus] = useState("");
   const [Datarecode, setDataset] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [disasters, setDisasters] = useState([]);
+
+  // Export recodes as CSV
+  const handleExportCSV = () => {
+    if (!Datarecode || Datarecode.length === 0) {
+      toast.error("No data to export.");
+      return;
+    }
+    const headers = Object.keys(Datarecode[0]);
+    const csvRows = [
+      headers.join(","),
+      ...Datarecode.map((row) =>
+        headers
+          .map(
+            (field) => `"${(row[field] ?? "").toString().replace(/"/g, '""')}"`
+          )
+          .join(",")
+      ),
+    ];
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "guardian_earth_report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Report exported as CSV!");
+  };
+
+  // Fetch all disasters from backend
+  const fetchDisasters = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/disaster");
+      const data = await response.json();
+      setDisasters(data.disasters || []);
+    } catch (error) {
+      toast.error("Failed to load disaster data");
+      setDisasters([]);
+    }
+  };
+
+  // Prepare disaster type data for PieChart
+  const disasterTypeCounts = (() => {
+    const typeMap = {};
+    disasters.forEach((d) => {
+      const type = d.disasterType || "Other";
+      typeMap[type] = (typeMap[type] || 0) + 1;
+    });
+    return Object.entries(typeMap).map(([type, count]) => ({
+      type,
+      count,
+    }));
+  })();
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/users", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (!response.ok) throw new Error("Failed to fetch users");
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      toast.error("Failed to load users");
+      setUsers([]);
+    }
+  };
 
   useEffect(() => {
     console.log(remark);
     const mergedData = { ...Datarecode, remark, status };
     fetchDataset();
     fetchPayments();
+    fetchUsers();
+    fetchDisasters();
     setNewRecode(mergedData);
   }, []);
 
@@ -177,28 +258,24 @@ const Dashboard = () => {
   const getChartData = (payments) => {
     const monthMap = {};
 
-    // Iterate over each payment and accumulate values by month
     payments.forEach((payment) => {
       const date = new Date(payment.createdAt);
-      const month = date.toLocaleString("default", { month: "short" }); // Get the abbreviated month name
-      const year = date.getFullYear(); // Get the year
-      const monthYear = `${month}-${year}`; // Format it as "Mar-2025"
-
-      // Accumulate the amount for each month-year combination
+      const month = date.toLocaleString("default", { month: "short" });
+      const year = date.getFullYear();
+      const monthYear = `${month}-${year}`;
       if (!monthMap[monthYear]) {
         monthMap[monthYear] = 0;
       }
       monthMap[monthYear] += payment.amount;
     });
 
-    // Format the data into the required structure for the chart
-    const chartData = Object.keys(monthMap).map((monthYear) => {
-      return { label: monthYear, value: monthMap[monthYear] };
-    });
-
-    return chartData;
+    return Object.keys(monthMap).map((monthYear) => ({
+      label: monthYear,
+      value: monthMap[monthYear],
+    }));
   };
   const data = getChartData(payment_data);
+  console.log(data);
 
   const fetchDataset = async () => {
     try {
@@ -227,61 +304,65 @@ const Dashboard = () => {
 
   return (
     <>
-      <div class="bg-gray-100 text-gray-800">
-        <div class="flex">
-          <div class="flex-1 p-6">
-            <div class="flex justify-between items-center mb-6">
+      <div className="bg-gradient-to-br from-gray-50 to-gray-200 min-h-screen text-gray-800">
+        <div className="flex">
+          <div className="flex-1 px-8 py-4">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8">
               <div className="text-left">
-                <h1 class="text-[22px] font-semibold">
-                  Guardian Earth - Dashboard
+                <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-1">
+                  GUARDIAN EARTH{" "}
+                  <span className="text-green-600">DASHBOARD</span>
                 </h1>
-                <p class="text-gray-500 text-[14px] ">
-                  Dashboard monitors, alerts, and tracks resources for effective
-                  response.
+                <p className="text-gray-500 text-[14px]">
+                  Monitor, alert, and track resources for effective response.
                 </p>
               </div>
-              <div class="flex items-center space-x-2">
-                <div class="relative">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
                   <input
-                    class="bg-gray-200 rounded-full py-2 px-4 w-[300px] outline-none text-[14px]"
+                    className="bg-white border pl-10 rounded-full py-2 px-5 w-72 outline-none text-sm shadow-sm focus:ring-1 focus:ring-green-400 transition"
                     placeholder="Search"
                     type="text"
                   />
-                  <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                  <i className="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
-                <i class="fas fa-bell text-gray-500"></i>
-                <img
-                  alt="User profile picture"
-                  class="rounded-full w-[40px] h-[40px] object-cover "
-                  src={Profile_pic}
-                />
+                <button
+                  onClick={handleExportCSV}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border-green-500 text-[14px] border text-green-500 rounded-lg shadow hover:bg-green-100 transition"
+                  title="Export report as CSV"
+                >
+                  <FileDown className="w-5 h-5" />
+                  Export Report
+                </button>
               </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
-              <div className="flex flex-row h-[90px] items-center w-full bg-white p-4 rounded-lg shadow gap-4">
-                <img src={Icon1} alt="icon1" className="w-16 h-16" />
-                <div class=" text-left w-full ">
-                  <p class="text-gray-400 text-[15px]">Donations</p>
-
-                  <p class="text-[24px] font-semibold">{Dataset.Donations}</p>
+            {/* Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2 mb-4">
+              <div className="flex items-center bg-white p-5 rounded-2xl shadow-sm hover:shadow-xl transition gap-4 border border-gray-100">
+                <HandCoins className="w-14 h-14 text-green-500 bg-green-50 rounded-xl p-2" />
+                <div className="text-left w-full">
+                  <p className="text-gray-400 text-sm font-medium">Donations</p>
+                  <p className="text-[24px] font-semibold">
+                    {Dataset.Donations}
+                  </p>
                 </div>
               </div>
-              <div className="flex flex-row w-full  h-[90px] items-center bg-white p-4 rounded-lg shadow gap-4">
-                <img src={Icon2} alt="icon2" className="w-16 h-16" />
-                <div class=" text-left w-full ">
-                  <p class="text-gray-400 text-[15px]">Savings</p>
-                  <p class="text-[24px] font-semibold">{Dataset.savings}</p>
+              <div className="flex items-center h-[100px] bg-white p-5 rounded-2xl shadow-sm hover:shadow-xl transition gap-4 border border-gray-100">
+                <PiggyBank className="w-14 h-14 text-blue-500 bg-blue-50 rounded-xl p-2" />
+                <div className="text-left w-full">
+                  <p className="text-gray-400 text-sm font-medium">Savings</p>
+                  <p className="text-[24px] font-semibold">{Dataset.savings}</p>
                 </div>
               </div>
 
-              <div className="flex flex-row w-full  h-[90px] items-center bg-white p-4 rounded-lg shadow gap-4">
-                <img
-                  src={Icon3}
-                  alt="icon3"
-                  className="w-16 h-16 opacity-50 rounded-3xl"
-                />
+              <div className="flex items-center h-[100px] bg-white p-5 rounded-2xl shadow-sm hover:shadow-xl transition gap-4 border border-gray-100">
+                <BarChart3 className="w-16 h-16 text-purple-500 bg-purple-50 rounded-2xl p-3 opacity-70" />
+
                 <div class=" text-left w-full ">
-                  <p class="text-gray-400 text-[15px]">Distribution</p>
+                  <p className="text-gray-400 text-sm font-medium">
+                    Distribution
+                  </p>
                   <p class="text-[24px] font-semibold">
                     {Dataset.Distribution}
                   </p>
@@ -292,14 +373,13 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="flex flex-row w-full  h-[90px] items-center bg-white p-4 rounded-lg shadow gap-4">
-                <img
-                  src={Icon2}
-                  alt="icon3"
-                  className="w-16 h-16 opacity-50 rounded-3xl"
-                />
+              <div className="flex items-center h-[100px] bg-white p-5 rounded-2xl shadow-sm hover:shadow-xl transition gap-4 border border-gray-100">
+                <PiggyBank className="w-16 h-16 text-yellow-500 bg-yellow-50 rounded-2xl p-3 opacity-70" />
+
                 <div class=" text-left w-full ">
-                  <p class="text-gray-400 text-[15px]">Balance Amount</p>
+                  <p className="text-gray-400 text-sm font-medium">
+                    Balance Amount
+                  </p>
                   <p class="text-[24px] font-semibold">
                     {Dataset.BalanceAmount}
                   </p>
@@ -310,14 +390,13 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="flex flex-row w-full  h-[90px] items-center bg-white p-4 rounded-lg shadow gap-4">
-                <img
-                  src={Icon3}
-                  alt="icon3"
-                  className="w-16 h-16 opacity-50 rounded-3xl"
-                />
+              <div className="flex items-center h-[100px] bg-white p-5 rounded-2xl shadow-sm hover:shadow-xl transition gap-4 border border-gray-100">
+                <Users className="w-16 h-16 text-cyan-500 bg-cyan-50 rounded-2xl p-3 opacity-70" />
+
                 <div class=" text-left w-full ">
-                  <p class="text-gray-400 text-[15px]">User Traffic</p>
+                  <p className="text-gray-400 text-sm font-medium">
+                    User Traffic
+                  </p>
                   <p class="text-[24px] font-semibold">{Dataset.usertraffic}</p>
                   <p class="text-gray-400 text-[12px]">
                     <span className="text-green-400  font-semibold">+450 </span>
@@ -374,7 +453,6 @@ const Dashboard = () => {
                   <DisasterLineChart data={Dataset.disasterLineChartData} />
                 </div>
               </div>
-
               {/* Second Row Grid 2nd Card*/}
               <div className="flex flex-col gap-4">
                 {Dataset &&
@@ -401,36 +479,49 @@ const Dashboard = () => {
                     </div>
                   ))}
               </div>
-
-              <div class="bg-white p-4 rounded-lg shadow w-full">
-                <div className="flex flex-col text-left w-full">
-                  <p class="text-lg font-bold">Register users</p>
-                  <p class="text-[13px] font-normal text-gray-400 w-full">
-                    List of Registered users for Guardian Earth
+              <div className="bg-white p-4 rounded-lg shadow w-full">
+                <div className="flex flex-col text-left w-full mb-4">
+                  <p className="text-lg font-semibold">Registered Users</p>
+                  <p className="text-[13px] font-normal text-gray-400 w-full">
+                    List of registered users for Guardian Earth
                   </p>
                 </div>
-
-                <ul>
-                  {Dataset &&
-                    Dataset.users &&
-                    Dataset.users.length > 0 &&
-                    Dataset.users.map((user, index) => (
-                      <li class="flex items-center my-2 hover:bg-green-100 px-2 py-2 w-full rounded-sm">
-                        <img
-                          alt="Team member profile picture"
-                          class="rounded-full mr-4"
-                          src="https://placehold.co/40x40"
-                        />
-                        <div className="text-left">
-                          <p class="font-semibold text-[15px]">{user.name}</p>
-                          <p class="text-sm text-gray-500 text-[13px]">
+                <ul
+                  className="max-h-[400px] overflow-y-auto pr-2"
+                  style={{ minHeight: "180px" }}
+                >
+                  {users && users.length > 0 ? (
+                    users.map((user, index) => (
+                      <li
+                        key={user._id || index}
+                        className="flex items-center text-left gap-4 my-2 px-3 py-3 rounded-xl hover:bg-green-50 transition"
+                      >
+                        <div className="flex-shrink-0">
+                          <img
+                            alt={user.name}
+                            className="rounded-full w-10 h-10 border border-green-200 shadow"
+                            src={
+                              user.profile_img || "https://placehold.co/40x40"
+                            }
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-gray-900 text-[15px]">
+                            {user.name}
+                          </span>
+                          <span className="text-sm text-gray-500">
                             {user.email}
-                          </p>
+                          </span>
                         </div>
                       </li>
-                    ))}
+                    ))
+                  ) : (
+                    <li className="text-gray-400 text-sm py-4">
+                      No users found.
+                    </li>
+                  )}
                 </ul>
-              </div>
+              </div>{" "}
             </div>
 
             <div class="bg-white p-4 rounded-lg shadow">

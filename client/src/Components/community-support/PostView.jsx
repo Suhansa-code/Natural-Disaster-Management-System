@@ -32,18 +32,13 @@ const PostView = () => {
 
   const [disasterTypes, setDisasterTypes] = useState([]);
 
-  const getDisasterIcon = (type) => {
-    const iconMap = {
-      Hurricanes: Wind,
-      Floods: Droplets,
-      Wildfires: Flame,
-      Earthquakes: AlertTriangle,
-      Landslides: AlertTriangle,
-      Tornadoes: Wind,
-      Tsunami: Droplets,
-    };
-    return iconMap[type] || AlertTriangle;
-  };
+  const [weather, setWeather] = useState({
+    temperature: null,
+    windSpeed: null,
+    precipitation: null,
+    loading: true,
+    error: null,
+  });
 
   const formatDate = (date) => {
     const now = new Date();
@@ -62,8 +57,10 @@ const PostView = () => {
   };
 
   const SidebarMenu = ({ items, title }) => (
-    <div className="glassmorphism rounded-xl  mb-4 text-left ">
-      <h2 className="font-semibold text-gray-900 ml-10 mb-4">{title}</h2>
+    <div className="glassmorphism rounded-xl w-[250px]  mb-4 text-left ">
+      <h2 className="font-semibold text-gray-900 pl-2 mr-2 mb-4 border-b border-gray-200 pb-2">
+        {title}
+      </h2>
       <div className="space-y-2">
         {items.map((item, index) => (
           <button
@@ -88,8 +85,10 @@ const PostView = () => {
   );
 
   const DisasterTypes = ({ items }) => (
-    <div className="glassmorphism rounded-xl mb-4 text-left">
-      <h2 className="font-semibold text-gray-900 ml-10 mb-4">Disaster Types</h2>
+    <div className="glassmorphism rounded-xl  w-[250px]  mb-4 text-left">
+      <h2 className="font-semibold text-gray-900 pl-2 mr-2 mb-4 border-b border-gray-200 pb-2">
+        Disaster Types
+      </h2>
       <div className="space-y-2">
         {items.map((item, index) => (
           <button
@@ -130,8 +129,9 @@ const PostView = () => {
       const response = await fetch("http://localhost:5000/api/posts");
       const data = await response.json();
       const approvedPosts = Array.isArray(data)
-        ? data.filter((post) => post.status === "approved")
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        ? data
+            .filter((post) => post.status === "approved")
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         : [];
       setPosts(approvedPosts);
       console.log(approvedPosts);
@@ -144,6 +144,30 @@ const PostView = () => {
   };
 
   useEffect(() => {
+    //Colombo, Sri Lanka coordinates Get Current Weather Update
+    const lat = 6.9271;
+    const lon = 79.8612;
+    fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setWeather({
+          temperature: data.current_weather.temperature,
+          windSpeed: data.current_weather.windspeed,
+          precipitation: data.current_weather.precipitation ?? 0,
+          loading: false,
+          error: null,
+        });
+      })
+      .catch((err) => {
+        setWeather((prev) => ({
+          ...prev,
+          loading: false,
+          error: "Failed to fetch weather",
+        }));
+      });
+
     if (shouldFocusSearch) {
       searchInputRef.current?.focus();
       setShouldFocusSearch(false);
@@ -251,7 +275,7 @@ const PostView = () => {
   };
 
   const PostCard = ({ post, handleAddComment }) => (
-    <div className=" rounded-xl shadow-md bg-white overflow-hidden">
+    <div className="relative border rounded-xl mix-w-[500px] shadow-sm mt-2 bg-white overflow-hidden">
       {/* Header */}
       <div className="mx-5 flex items-center border-b justify-between   border-gray-200">
         <div className="flex items-center space-x-3">
@@ -292,14 +316,14 @@ const PostView = () => {
       </div>
 
       {/* Image */}
-      <div className="overflow-hidden rounded-md shadow-md group mx-5 mt-2">
+      <div className="overflow-hidden relative rounded-md shadow-md group mx-5 mt-2">
         <img
           src={post.imageUrl}
           alt={post.title}
           className="w-full aspect-[8/5] rounded-md shadow-md object-cover transition-transform duration-300 group-hover:scale-110"
         />
-        {post.isUpcoming && post.disasterDate && (
-          <div className="absolute bottom-4 left-8 px-4 py-2 rounded-lg flex items-center space-x-2 bg-white/20 backdrop-blur-md border border-white/30 shadow-md">
+        {post.disasterDate && (
+          <div className="absolute bottom-4 left-4 px-4 py-2 rounded-lg flex items-center space-x-2 bg-white/50 backdrop-blur-md border border-white/30 shadow-md">
             <Clock className="h-4 w-4 text-primary-600" />
             <span className="text-gray-900 text-sm font-medium">
               Expected: {new Date(post.disasterDate).toLocaleDateString()}
@@ -461,18 +485,22 @@ const PostView = () => {
           </div>
         </div>
 
-        <div className="flex gap-8   ">
+        <div className="flex flex-row  gap-8   ">
           {/* Left Sidebar - Sticky */}
           <div className="hidden lg:block lg:fixed top-4 flex-shrink-0 h-screen w-[300px]">
             <div className="sticky top-28 space-y-6 ">
-              <SidebarMenu items={SIDE_MENU_ITEMS} title="Quick Access" />
+              <SidebarMenu
+                items={SIDE_MENU_ITEMS}
+                title="Quick Access"
+                className="border-b border-gray-200 pb-2"
+              />
               <DisasterTypes items={disasterTypes} />
             </div>
           </div>
 
           {/* Main Content */}
           <div
-            className={`flex-1 pt-[80px] ml-[260px] mr-[260px]  ${viewMode === "list" ? "space-y-8" : "grid grid-cols-1 md:grid-cols-2 gap-8"}`}
+            className={`flex-1 pl-4 pr-10 pt-[80px] ml-[260px] mr-[260px]  ${viewMode === "list" ? "space-y-8" : "grid grid-cols-1 md:grid-cols-2 gap-8"}`}
           >
             {posts.map((post) => (
               <PostCard key={post._id} post={post} />
@@ -484,17 +512,17 @@ const PostView = () => {
             className={`hidden pt-[90px] ${viewMode === "list" ? "xl:block fixed right-0 " : ""} w-80 flex-shrink-0`}
           >
             <div className="sticky top-28 space-y-6">
-              <div className="glass-card rounded-xl p-4">
-                <h2 className="font-semibold text-gray-900 mb-4">
+              <div className="glass-card text-left rounded-xl p-4 ">
+                <h2 className="font-semibold text-[16px] ml-4 text-gray-900 mb-4 border-b border-gray-200 pb-2">
                   Emergency Contacts
                 </h2>
-                <div className="space-y-3">
+                <div className="space-y-3 mx-4">
                   <button className="interactive-button w-full flex items-center space-x-3 p-2 rounded-lg">
                     <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
                       <span className="text-red-600 font-semibold">911</span>
                     </div>
-                    <div className="text-left">
-                      <p className="font-medium text-gray-900">
+                    <div className="text-left ">
+                      <p className="font-medium text-[14px] text-gray-900">
                         Emergency Services
                       </p>
                       <p className="text-sm text-gray-600">
@@ -507,7 +535,9 @@ const PostView = () => {
                       <Shield className="h-6 w-6 text-primary-600" />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Local Police</p>
+                      <p className="font-medium text-gray-900 text-[14px]">
+                        Local Police
+                      </p>
                       <p className="text-sm text-gray-600">
                         Non-emergency: 555-0123
                       </p>
@@ -516,23 +546,37 @@ const PostView = () => {
                 </div>
               </div>
 
-              <div className="glass-card rounded-xl p-4">
-                <h2 className="font-semibold text-gray-900 mb-4">
+              <div className="glass-card rounded-xl p-4 mx-3">
+                <h2 className="font-semibold text-gray-900 pl-2 mr-2 mb-4 border-b text-left text-[16px] border-gray-200 pb-2">
                   Weather Updates
                 </h2>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2 hover:bg-primary-50 rounded-lg transition-all duration-300">
-                    <span className="text-gray-600">Temperature</span>
-                    <span className="font-medium text-gray-900">72°F</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 hover:bg-primary-50 rounded-lg transition-all duration-300">
-                    <span className="text-gray-600">Wind Speed</span>
-                    <span className="font-medium text-gray-900">15 mph</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 hover:bg-primary-50 rounded-lg transition-all duration-300">
-                    <span className="text-gray-600">Precipitation</span>
-                    <span className="font-medium text-gray-900">30%</span>
-                  </div>
+                <div className="space-y-2 text-[14px]">
+                  {weather.loading ? (
+                    <div className="text-gray-400">Loading weather...</div>
+                  ) : weather.error ? (
+                    <div className="text-red-400">{weather.error}</div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between p-2 hover:bg-primary-50 rounded-lg transition-all duration-300">
+                        <span className="text-gray-600">Temperature</span>
+                        <span className="font-medium text-gray-900">
+                          {weather.temperature}°C
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 hover:bg-primary-50 rounded-lg transition-all duration-300">
+                        <span className="text-gray-600">Wind Speed</span>
+                        <span className="font-medium text-gray-900">
+                          {weather.windSpeed} km/h
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 hover:bg-primary-50 rounded-lg transition-all duration-300">
+                        <span className="text-gray-600">Precipitation</span>
+                        <span className="font-medium text-gray-900">
+                          {weather.precipitation} mm
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
