@@ -271,12 +271,6 @@ export default function ViewDisasters() {
             </div>
 
             <div className="absolute bottom-0 left-0 right-0 p-3">
-              <button
-                type="button"
-                className="w-full h-[40px] backdrop-blur-md bg-white/30 border border-white/20 text-gray-300 px-3 rounded-lg text-[15px] font-medium shadow-md hover:bg-white/40 transition-all"
-              >
-                View on Map
-              </button>
             </div>
           </div>
         </div>
@@ -328,12 +322,7 @@ export default function ViewDisasters() {
               </div>
 
               <div className="absolute bottom-0 left-0 right-0 p-3">
-                <button
-                  type="button"
-                  className="w-full h-[40px] backdrop-blur-md bg-white/30 border border-white/20 text-gray-200 px-3 rounded-lg text-[15px] font-medium shadow-md hover:bg-white/40 transition-all"
-                >
-                  View on Map
-                </button>
+          
               </div>
             </div>
 
