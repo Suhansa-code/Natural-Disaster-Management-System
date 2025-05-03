@@ -54,12 +54,15 @@ const adminPostView = () => {
       setLoading(true);
       const response = await fetch("http://localhost:5000/api/posts");
       const data = await response.json();
-      const filteredPosts = Array.isArray(data)
-        ? statusFilter === "All"
-          ? data
-          : data.filter((post) => post.status === statusFilter)
-        : [];
-      setPosts(filteredPosts);
+      const filtered = Array.isArray(data)
+      ? data
+          .filter((post) =>
+            statusFilter === "All" ? true : post.status === statusFilter
+          )
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      : [];
+
+    setPosts(filtered);
     } catch (error) {
       toast.error("Error fetching posts: " + error.message);
       console.error("Error fetching posts:", error.message);

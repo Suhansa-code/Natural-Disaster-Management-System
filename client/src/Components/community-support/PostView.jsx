@@ -131,6 +131,7 @@ const PostView = () => {
       const data = await response.json();
       const approvedPosts = Array.isArray(data)
         ? data.filter((post) => post.status === "approved")
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         : [];
       setPosts(approvedPosts);
       console.log(approvedPosts);
