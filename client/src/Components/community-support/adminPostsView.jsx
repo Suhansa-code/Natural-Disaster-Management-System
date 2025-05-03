@@ -34,6 +34,9 @@ const adminPostView = () => {
   const [shouldFocusSearch, setShouldFocusSearch] = useState(false);
   const [loading, setLoading] = useState(true);
   const { isModalOpen, setIsModalOpen } = useModal();
+  const [pendingPosts, setPendingPosts] = useState([]);
+  const [approvedPosts, setApprovedPosts] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("All");
 
   // Form states
   const [title, setTitle] = useState("");
@@ -45,25 +48,20 @@ const adminPostView = () => {
   const [isUpcoming, setIsUpcoming] = useState(false);
   const [dateError, setDateError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  
+
   const fetchPosts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/posts", {
-        method: "GET",
-      });
-
+      setLoading(true);
+      const response = await fetch("http://localhost:5000/api/posts");
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch posts");
-      }
-      const sortedData = (data || []).sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-
-      setPosts(data || []);
+      const filteredPosts = Array.isArray(data)
+        ? statusFilter === "All"
+          ? data
+          : data.filter((post) => post.status === statusFilter)
+        : [];
+      setPosts(filteredPosts);
     } catch (error) {
-      toast.error("Error fetching posts:", error.message);
+      toast.error("Error fetching posts: " + error.message);
       console.error("Error fetching posts:", error.message);
     } finally {
       setLoading(false);
@@ -75,22 +73,65 @@ const adminPostView = () => {
       searchInputRef.current?.focus();
       setShouldFocusSearch(false);
     }
-  
+
+    fetch("/api/posts/status?status=pending")
+      .then((res) => res.json())
+      .then(setPendingPosts);
+
+    fetch("/api/posts/status?status=approved")
+      .then((res) => res.json())
+      .then(setApprovedPosts);
+
     fetchPosts();
-  }, [shouldFocusSearch]);
-  
-  const filteredPosts = posts
-    .filter((post) => {
-      const searchTerm = searchQuery.toLowerCase();
-      return (
-        post.title.toLowerCase().includes(searchTerm) ||
-        post.description.toLowerCase().includes(searchTerm) ||
-        post.category.toLowerCase().includes(searchTerm) ||
-        post.location.toLowerCase().includes(searchTerm)
+  }, [shouldFocusSearch, statusFilter]);
+
+  const approvePost = async (postId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `http://localhost:5000/api/posts/${postId}/approve`,
+        {
+          method: "PUT",
+        }
       );
-    })
-   
-    
+      if (!response.ok) throw new Error("Failed to approve post");
+      toast.success("Post approved successfully");
+      fetchPosts();
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const rejectPost = async (postId) => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `http://localhost:5000/api/posts/${postId}/reject`,
+        {
+          method: "PUT",
+        }
+      );
+      if (!response.ok) throw new Error("Failed to reject post");
+      toast.success("Post rejected");
+      fetchPosts();
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const filteredPosts = posts.filter((post) => {
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      post.title.toLowerCase().includes(searchTerm) ||
+      post.description.toLowerCase().includes(searchTerm) ||
+      post.category.toLowerCase().includes(searchTerm) ||
+      post.location.toLowerCase().includes(searchTerm)
+    );
+  });
+
   const handleEdit = (post) => {
     setEditingPost(post);
     setTitle(post.title);
@@ -111,52 +152,59 @@ const adminPostView = () => {
   };
 
   const handleDelete = async (postId) => {
-    toast((t) => (
-      <div className="flex items-center gap-4">
-        <p>Are you sure you want to delete this post?</p>
-        <div className="flex gap-2">
-          <button
-            onClick={async () => {
-              try {
-                // Send DELETE request to backend
-                const response = await fetch(`http://localhost:5000/api/posts/${postId}`, {
-                  method: "DELETE",
-                });
-  
-                const data = await response.json();
-  
-                if (!response.ok) {
-                  throw new Error(data.message || "Failed to delete post");
+    toast.dismiss();
+    toast(
+      (t) => (
+        <div className="flex items-center gap-4">
+          <p>Are you sure you want to delete this post?</p>
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                try {
+                  // Send DELETE request to backend
+                  const response = await fetch(
+                    `http://localhost:5000/api/posts/${postId}`,
+                    {
+                      method: "DELETE",
+                    }
+                  );
+
+                  const data = await response.json();
+
+                  if (!response.ok) {
+                    throw new Error(data.message || "Failed to delete post");
+                  }
+
+                  // Remove from local state
+                  setPosts((prev) =>
+                    prev.filter((post) => post._id !== postId)
+                  );
+                  toast.dismiss(t.id);
+                  toast.success("Post deleted successfully");
+                } catch (error) {
+                  toast.dismiss(t.id);
+                  toast.error("Error deleting post: " + error.message);
                 }
-  
-                // Remove from local state
-                setPosts((prev) => prev.filter((post) => post._id !== postId));
-                toast.dismiss(t.id);
-                toast.success("Post deleted successfully");
-              } catch (error) {
-                toast.dismiss(t.id);
-                toast.error("Error deleting post: " + error.message);
-              }
-            }}
-            className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-          >
-            Delete
-          </button>
-          <button
-            onClick={() => toast.dismiss(t.id)}
-            className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-          >
-            Cancel
-          </button>
+              }}
+              className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="px-3 py-1 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
-      </div>
-    ), {
-      duration: 5000,
-      position: "top-center",
-    });
+      ),
+      {
+        duration: 5000,
+        position: "top-center",
+      }
+    );
   };
-  
-  
 
   const resetForm = () => {
     setTitle("");
@@ -289,16 +337,34 @@ const adminPostView = () => {
             </div>
 
             <div className="mt-3 pt-3 flex items-center justify-between">
-              <button
-                onClick={() => {
-                  setImageModalUrl(post.imageUrl);
-                  setImageModalTitle(post.title);
-                  setImageModalDescription(post.description);
-                }}
-                className="text-gray-600 flex flex-row items-center gap-2 hover:text-green-600 border-[1px] border-gray-300 px-2 py-[2px] rounded-[4px] transition-colors"
-              >
-                <Image className="h-4 w-4" /> Preview
-              </button>
+              <div className="flex gap-1">
+                <button
+                  onClick={() => {
+                    setImageModalUrl(post.imageUrl);
+                    setImageModalTitle(post.title);
+                    setImageModalDescription(post.description);
+                  }}
+                  className="text-gray-600 flex flex-row items-center gap-2 hover:text-green-600 border-[1px] border-gray-300 px-2 py-[2px] rounded-[4px] transition-colors"
+                >
+                  <Image className="h-4 w-4" /> Preview
+                </button>
+                {post.status === "pending" && (
+                  <div className="flex text-left">
+                    <button
+                      onClick={() => approvePost(post._id)}
+                      className="text-white flex flex-row items-center gap-2 text-[15px] bg-green-500 hover:bg-green-600 border-[1px] border-gray-300 px-2 py-[2px] rounded-[4px] transition-colors"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => rejectPost(post._id)}
+                      className="text-white flex flex-row items-center gap-2 text-[15px] bg-red-500 hover:bg-red-600 border-[1px] border-gray-300 px-2 py-[2px] rounded-[4px] transition-colors"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <div className="  border-t border-gray-100 flex justify-end space-x-2">
                 <button
@@ -334,7 +400,7 @@ const adminPostView = () => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg bg-white/50 backdrop-blur-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-sm"
+          className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg bg-white/50 backdrop-blur-sm h-[36px] text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-1 outline-none focus:ring-green-500 focus:border-transparent transition-all duration-200 text-[13px]"
           placeholder="Search posts..."
         />
         {searchQuery && (
@@ -367,7 +433,20 @@ const adminPostView = () => {
               <p className="text-sm text-gray-500">Admin Dashboard</p>
             </div>
             <div className="flex items-center space-x-4">
-              <SearchBar />{" "}
+              <SearchBar />
+              {/* Filter Dropdown */}
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                }}
+                className="border text-[13px] border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="All">All</option>
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+              </select>
               <div className="flex flex-row  gap-2">
                 <div className="inline-flex items-center rounded-lg z-20 border border-gray-200 bg-white p-1">
                   <button
@@ -417,8 +496,19 @@ const adminPostView = () => {
             {error}
           </div>
         )}
-
-        {viewMode === "grid" ? <GridView /> : <TableView />}
+        {loading ? (
+          <div className="text-center text-gray-500 text-[15px] py-10">
+            Loading posts...
+          </div>
+        ) : filteredPosts.length === 0 ? (
+          <div className="text-center text-gray-400 text-[16px] py-10">
+            No records found.
+          </div>
+        ) : viewMode === "grid" ? (
+          <GridView />
+        ) : (
+          <TableView />
+        )}
       </main>
 
       <Modal

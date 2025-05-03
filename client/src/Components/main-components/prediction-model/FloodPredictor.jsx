@@ -1,5 +1,7 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 function FloodPredictor() {
   const [inputs, setInputs] = useState({
@@ -10,6 +12,7 @@ function FloodPredictor() {
 
   const [result, setResult] = useState(null);
   const [graphUrl, setGraphUrl] = useState(null);
+  const resultRef = useRef();
 
   const handleChange = (e) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
@@ -18,13 +21,64 @@ function FloodPredictor() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5001/predict", inputs); // Ensure port matches Flask backend
+      const res = await axios.post("http://localhost:5001/predict", inputs);
       setResult(res.data.floodProbability);
       setGraphUrl(res.data.graphUrl);
     } catch (err) {
       alert("Prediction failed: " + (err.response?.data?.error || err.message));
     }
   };
+
+  const downloadPDF = async () => {
+    const element = resultRef.current;
+  
+    // Ensure the image is fully loaded before generating the PDF
+    const img = element.querySelector("img");
+    if (img && !img.complete) {
+      await new Promise((resolve) => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }
+  
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true }); // Higher resolution
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+  
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  
+    // Header
+    pdf.setFontSize(18);
+    pdf.setTextColor("#333");
+    pdf.setFont("helvetica", "bold"); 
+    pdf.text("Guardian Earth Flood Prediction Result ", pdfWidth / 2, 15, { align: "center" });
+                                                      
+    
+    pdf.setFontSize(10);
+    pdf.setTextColor("#555");
+    pdf.text(`Generated on: ${new Date().toLocaleString()}`, pdfWidth / 2, 22, {
+      align: "center",
+    });
+  
+    
+    pdf.addImage(imgData, "PNG", 0, 30, pdfWidth, pdfHeight);
+  
+  
+    const footerY = pdfHeight + 40;
+    pdf.setFontSize(10);
+    pdf.setTextColor("#999");
+    pdf.text("Flood Prediction System • Page 1", pdfWidth / 2, footerY, {
+      align: "center",
+    });
+  
+   
+    const blobUrl = pdf.output("bloburl");
+    window.open(blobUrl, "_blank");
+  
+ 
+  };
+  
 
   return (
     <div className="bg-gray-100 min-h-screen flex items-center justify-center p-4">
@@ -95,23 +149,32 @@ function FloodPredictor() {
         </form>
 
         {result !== null && (
-          <div className="mt-6 text-center">
-            <h2 className="text-2xl font-semibold text-indigo-600">
-              Predicted Flood Probability: {result}%
-            </h2>
-          </div>
-        )}
+          <>
+            <div className="mt-6 text-center" ref={resultRef}>
+              <h2 className="text-2xl font-semibold text-indigo-600">
+                Predicted Flood Probability: {result}%
+              </h2>
 
-        {graphUrl && (
-          <div className="mt-6 text-center">
-            <h3 className="text-xl font-medium text-gray-700">Flood Probability Graph:</h3>
-            <img
-              src={graphUrl}
-              alt="Flood Probability Graph"
-              className="mx-auto mt-4 rounded-lg max-w-full h-auto" // Ensuring responsive scaling
-              style={{ maxWidth: '100%', height: 'auto' }}
-            />
-          </div>
+              {graphUrl && (
+                <div className="mt-6">
+                  <h3 className="text-xl font-medium text-gray-700">Flood Probability Graph:</h3>
+                  <img
+                    src={graphUrl}
+                    alt="Flood Probability Graph"
+                    className="mx-auto mt-4 rounded-lg max-w-full h-auto"
+                    style={{ maxWidth: "100%", height: "auto" }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={downloadPDF}
+              className="mt-6 w-full bg-green-600 text-white font-semibold py-2 rounded-md hover:bg-green-700 transition"
+            >
+              Download PDF Report
+            </button>
+          </>
         )}
       </div>
     </div>

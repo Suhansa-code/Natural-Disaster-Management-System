@@ -18,7 +18,6 @@ import DisasterRouters from "./Routes/disasterRoutes.js";
 import PostRouters from "./Routes/postsRoutes.js";
 import floodRoutes from "./Routes/floodRoutes.js";
 
-
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -34,10 +33,10 @@ app.use(cors());
 
 // Routes
 app.use("/api/payment", PaymentRoutes); // Payment-related endpoints
-app.use("/api/email", EmailRoutes); // Email sending endpoint
-app.use("/api/dashboard", Datasetrouter); // Email sending endpoint
-app.use("/api/disaster", DisasterRouters); // Email sending endpoint
-app.use("/api/posts", PostRouters); // Email sending endpoint
+app.use("/api/email", EmailRoutes);
+app.use("/api/dashboard", Datasetrouter);
+app.use("/api/disaster", DisasterRouters);
+app.use("/api/posts", PostRouters);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", protect, userRoutes);
 app.use("/api", cloudinaryRoutes);
@@ -45,21 +44,6 @@ app.use("/api", cloudinaryRoutes);
 // JWT Secret Keys
 const JWT_SECRET = process.env.JWT_SECRET;
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
-
-// Stripe Payment Intent
-// app.post("/api/payment/create-payment-intent", async (req, res) => {
-//   const { amount } = req.body;
-
-//   try {
-//     const paymentIntent = await stripe.paymentIntents.create({
-//       amount,
-//       currency: "usd",
-//     });
-//     res.json({ clientSecret: paymentIntent.client_secret });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
 
 // Server Start
 app.listen(PORT, () => {
@@ -73,5 +57,5 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_KEY,
 });
 
- // Flood prediction API
+// Flood prediction API
 app.use("/api/flood", floodRoutes); // Flood prediction API

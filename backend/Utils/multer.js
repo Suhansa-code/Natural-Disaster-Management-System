@@ -7,7 +7,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "gurdianEarth", // Folder name in Cloudinary
-    allowedFormats: ["jpg", "png", "jpeg"], // Allowed file types
+    allowedFormats: ["jpg", "png", "jpeg", "pdf"], // Allowed file types
   },
 });
 

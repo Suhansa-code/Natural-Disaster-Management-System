@@ -18,7 +18,6 @@ const PostForm = ({ initialData, isEdit, onPostCreated, onUpdateSuccess }) => {
     isUpcoming: false,
   });
 
-
   const createPost = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/posts", {
@@ -137,22 +136,22 @@ const PostForm = ({ initialData, isEdit, onPostCreated, onUpdateSuccess }) => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-  
+
     setFormData((prev) => {
       let updatedValue = type === "checkbox" ? checked : value;
-  
+
       // Handle the logic for disasterDate to automatically check "Mark as upcoming" for future dates
       if (name === "disasterDate") {
         const futureDate = new Date(value) > new Date();
         updatedValue = value;
-        
+
         return {
           ...prev,
           [name]: updatedValue,
           isUpcoming: futureDate, // Automatically check if the date is in the future
         };
       }
-  
+
       return { ...prev, [name]: updatedValue };
     });
   };
@@ -248,22 +247,26 @@ const PostForm = ({ initialData, isEdit, onPostCreated, onUpdateSuccess }) => {
 
         {formData.category && (
           <div>
-      <label
-      htmlFor="disasterDate"
-      className="block text-sm font-medium text-gray-700"
-    >
-      Disaster Date
-    </label>
-    <input
-      type="date"
-      id="disasterDate"
-      name="disasterDate"
-      value={formData.disasterDate}
-      onChange={handleInputChange}
-      className={`w-full px-3 py-2 text-sm rounded-lg border  ring-0 outline-none  focus:border-green-500 transition-colors duration-200 bg-white/50 backdrop-blur-sm`}
-      required
-    />
-  </div>
+            <label
+              htmlFor="disasterDate"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Disaster Date
+            </label>
+            <input
+              type="date"
+              id="disasterDate"
+              name="disasterDate"
+              value={
+                formData.disasterDate
+                  ? new Date(formData.disasterDate).toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 text-sm rounded-lg border  ring-0 outline-none  focus:border-green-500 transition-colors duration-200 bg-white/50 backdrop-blur-sm`}
+              required
+            />
+          </div>
         )}
 
         <div>
