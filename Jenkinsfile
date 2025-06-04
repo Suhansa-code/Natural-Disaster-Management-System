@@ -2,28 +2,30 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'docker-image:latest'
+        IMAGE_NAME = 'my-react-app:latest'
     }
 
     stages {
         stage('Create Dockerfile') {
             steps {
                 script {
-                    
                     writeFile file: 'Dockerfile', text: '''
-                    FROM alpine:latest
+                    # Step 1: Build React app
+                    FROM node:18-alpine as build
+                    WORKDIR /app
+                    COPY package*.json ./
+                    RUN npm install
+                    COPY . .
+                    RUN npm run build
 
-                    # install Node.js and npm 
-                    RUN apk add --no-cache nodejs npm
-
-                    RUN node -v && npm -v
-
-
-                    RUN apk add --no-cache curl
-                    CMD ["echo", "Hello from the Docker container!"]
+                    # Step 2: Serve with nginx
+                    FROM nginx:stable-alpine
+                    COPY --from=build /app/build /usr/share/nginx/html
+                    EXPOSE 80
+                    CMD ["nginx", "-g", "daemon off;"]
                     '''
                 }
-                sh 'cat Dockerfile' 
+                sh 'cat Dockerfile'
             }
         }
 
@@ -33,12 +35,10 @@ pipeline {
             }
         }
 
-        stage('Run Docker Image') {
+        stage('Run Docker Container') {
             steps {
-                sh 'docker run $IMAGE_NAME'
+                sh 'docker run -d -p 3000:80 $IMAGE_NAME'
             }
         }
-
-       
     }
 }
