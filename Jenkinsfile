@@ -23,7 +23,7 @@ pipeline {
                     # Step 2: Serve with nginx
                     FROM nginx:stable-alpine
 
-                    COPY --from=build /app usr/share/nginx/html
+                    COPY --from=build /app /usr/share/nginx/html
                     EXPOSE 81
                     CMD ["nginx", "-g", "daemon off;"]
                     '''
