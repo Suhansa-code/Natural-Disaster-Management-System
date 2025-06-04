@@ -15,7 +15,7 @@ import ResetPassword from "./Pages/ResetPassword";
 import Profile from "./Pages/Profile";
 
 //Main Component Imports
-import Home from "./components/main-components/homecomp/Home";
+import Home from "./components/main-components/homecomp/home";
 import About from "./components/main-components/About";
 import FloodPredictor from "./Components/main-components/prediction-model/floodPredictor";
 import { UserManagement } from "./Pages/UserManagement";
