@@ -18,9 +18,11 @@ pipeline {
                     RUN npm install --legacy-peer-deps
                     COPY client .
                     RUN npm run dev
+                    RUN ls -la /app
 
                     # Step 2: Serve with nginx
                     FROM nginx:stable-alpine
+
                     COPY --from=build /app/dist /usr/share/nginx/html
                     EXPOSE 81
                     CMD ["nginx", "-g", "daemon off;"]
@@ -42,11 +44,6 @@ pipeline {
         stage('Run Docker Container') {
             steps {
                 sh '''
-                    set -e
-                    # Stop and remove existing container if running
-                    docker rm -f $CONTAINER_NAME || true
-
-                    # Run new container
                     docker run -d --name $CONTAINER_NAME -p 3000:81 $IMAGE_NAME
                 '''
             }
