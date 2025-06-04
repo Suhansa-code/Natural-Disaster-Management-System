@@ -22,7 +22,7 @@ pipeline {
                     # Step 2: Serve with nginx
                     FROM nginx:stable-alpine
                     COPY --from=build /app/dist /usr/share/nginx/html
-                    EXPOSE 80
+                    EXPOSE 81
                     CMD ["nginx", "-g", "daemon off;"]
                     '''
                 }
@@ -47,7 +47,7 @@ pipeline {
                     docker rm -f $CONTAINER_NAME || true
 
                     # Run new container
-                    docker run -d --name $CONTAINER_NAME -p 3000:80 $IMAGE_NAME
+                    docker run -d --name $CONTAINER_NAME -p 3000:81 $IMAGE_NAME
                 '''
             }
         }
