@@ -17,7 +17,7 @@ pipeline {
                     COPY client/package*.json ./
                     RUN npm install --legacy-peer-deps
                     COPY client .
-                    RUN npm run build
+                    RUN npm run dev
 
                     # Step 2: Serve with nginx
                     FROM nginx:stable-alpine
