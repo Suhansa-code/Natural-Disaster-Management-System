@@ -28,7 +28,7 @@ pipeline {
 
         stage('Run Docker Image') {
             steps {
-                sh 'docker run --rm $IMAGE_NAME'
+                sh 'docker run $IMAGE_NAME'
             }
         }
 
