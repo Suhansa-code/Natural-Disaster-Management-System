@@ -11,20 +11,20 @@ pipeline {
             steps {
                 script {
                     writeFile file: 'Dockerfile', text: '''\
-# Step 1: Build React app
-FROM node:18-alpine AS build
-WORKDIR /app
-COPY client/package*.json ./
-RUN npm install --legacy-peer-deps
-COPY client .
-RUN npm run build
+                    # Step 1: Build React app
+                    FROM node:18-alpine AS build
+                    WORKDIR /app
+                    COPY client/package*.json ./
+                    RUN npm install --legacy-peer-deps
+                    COPY client .
+                    RUN npm run build
 
-# Step 2: Serve with nginx
-FROM nginx:stable-alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-'''
+                    # Step 2: Serve with nginx
+                    FROM nginx:stable-alpine
+                    COPY --from=build /app/dist /usr/share/nginx/html
+                    EXPOSE 80
+                    CMD ["nginx", "-g", "daemon off;"]
+                    '''
                 }
                 sh 'cat Dockerfile'
             }
