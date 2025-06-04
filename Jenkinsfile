@@ -12,6 +12,13 @@ pipeline {
                     
                     writeFile file: 'Dockerfile', text: '''
                     FROM alpine:latest
+
+                    # install Node.js and npm 
+                    RUN apk add --no-cache nodejs npm
+
+                    RUN node -v && npm -v
+
+
                     RUN apk add --no-cache curl
                     CMD ["echo", "Hello from the Docker container!"]
                     '''
