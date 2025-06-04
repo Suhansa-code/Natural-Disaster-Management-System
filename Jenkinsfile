@@ -16,7 +16,7 @@ pipeline {
                     WORKDIR /app
                     COPY client/package*.json ./
                     RUN npm install
-                    COPY ${APP_DIR} .
+                    COPY client .
                     RUN npm run build
 
                     # Step 2: Serve with nginx
