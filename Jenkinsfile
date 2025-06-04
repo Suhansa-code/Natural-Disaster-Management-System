@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'my-react-app:latest'
-        APP_DIR = 'client' 
+       
     }
 
     stages {
@@ -14,7 +14,7 @@ pipeline {
                     # Step 1: Build React app
                     FROM node:18-alpine as build
                     WORKDIR /app
-                    COPY ${APP_DIR}/package*.json ./
+                    COPY client/package*.json ./
                     RUN npm install
                     COPY ${APP_DIR} .
                     RUN npm run build
