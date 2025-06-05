@@ -15,9 +15,8 @@ import ResetPassword from "./Pages/ResetPassword";
 import Profile from "./Pages/Profile";
 
 //Main Component Imports
-import Home from "./components/main-components/homecomp/home";
-import UserLogin from "./components/main-components/Userlog/userlogin";
-import About from "./components/main-components/About";
+//import Home from "./components/main-components/homecomp/home";
+//import About from "./components/main-components/About";
 import FloodPredictor from "./Components/main-components/prediction-model/floodPredictor";
 import { UserManagement } from "./Pages/UserManagement";
 import { AuthProvider } from "./context/AuthContext";
@@ -30,7 +29,7 @@ import AdminDisasterView from "./Components/disaster-management/adminDisasterVie
 
 //Comunity-support imports
 import PostView from "./components/community-support/PostView";
-import AdminPanel from "./Admin/AdminPanel";
+
 import ViewPosts from "./components/community-support/adminPostsView";
 import Navbar from "./Components/main-components/Navbar";
 
