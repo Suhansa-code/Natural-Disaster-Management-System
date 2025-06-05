@@ -17,7 +17,7 @@ pipeline {
                     COPY client/package*.json ./
                     RUN npm install --legacy-peer-deps
                     COPY client .
-                    RUN npm run dev
+                    RUN npm run build
                     RUN ls -la /app
 
                     # Step 2: Serve with nginx
@@ -46,6 +46,8 @@ pipeline {
                 sh '''
                     docker run -d --name $CONTAINER_NAME -p 3000:81 $IMAGE_NAME
                 '''
+
+
             }
         }
       
