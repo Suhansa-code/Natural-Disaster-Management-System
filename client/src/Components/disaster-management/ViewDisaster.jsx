@@ -161,7 +161,7 @@ export default function ViewDisasters() {
 
   const ListCard = ({ data, navigate }) => {
     return (
-      <div className="bg-white rounded-xl shadow-sm border z-30 border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300 ">
+      <div className="bg-white rounded-xl shadow-sm  border z-30 border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300 ">
         <div className="grid grid-cols-1 lg:grid-cols-3 h-auto">
           <div className="lg:col-span-2 p-4 h-auto flex flex-col justify-between">
             <div className="flex flex-col">
@@ -270,8 +270,7 @@ export default function ViewDisasters() {
               </div>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-3">
-            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-3"></div>
           </div>
         </div>
       </div>
@@ -321,9 +320,7 @@ export default function ViewDisasters() {
                 </div>
               </div>
 
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-          
-              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-3"></div>
             </div>
 
             <div className="flex border-t border-gray-200 flex-col justify-between items-center gap-5 w-full">
